@@ -2655,8 +2655,16 @@ function isAdmin() {
 }
 
 async function loadNotices() {
-  const data = await dbGet('notices');
-  noticesData = data || {};
+  try {
+    if (!demoMode && db) {
+      const snap = await get(child(dbRef(db), 'notices'));
+      noticesData = snap.exists() ? snap.val() : {};
+    } else {
+      noticesData = {};
+    }
+  } catch (e) {
+    noticesData = {};
+  }
   renderNotices();
 }
 
