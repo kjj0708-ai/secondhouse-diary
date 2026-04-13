@@ -1283,6 +1283,164 @@
        UTILITY
     ═══════════════════════════════════════ */
     .hidden { display: none !important; }
+
+    /* ═══════════════════════════════════════
+       NOTICE BOARD
+    ═══════════════════════════════════════ */
+    .notice-container {
+      padding: 16px;
+      padding-bottom: 80px;
+    }
+    .notice-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border2);
+      border-radius: var(--r-md);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+    .notice-card.pinned {
+      border-color: var(--primary-light);
+      background: var(--primary-ultra);
+    }
+    .notice-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .notice-pin-badge {
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--primary);
+      color: #fff;
+      border-radius: var(--r-full);
+      padding: 2px 7px;
+    }
+    .notice-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      flex: 1;
+    }
+    .notice-body {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.6;
+      white-space: pre-line;
+      margin-bottom: 10px;
+    }
+    .notice-meta {
+      font-size: 11px;
+      color: var(--text3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .notice-delete-btn {
+      font-size: 11px;
+      color: var(--red);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .notice-delete-btn:active { background: var(--red-bg); }
+
+    .btn-write-notice {
+      position: fixed;
+      bottom: calc(var(--tabbar-h) + 16px);
+      right: 16px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-full);
+      padding: 13px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: var(--font-body);
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      z-index: 100;
+    }
+    .btn-write-notice:active { opacity: .85; }
+
+    /* Notice Write Modal */
+    .notice-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 500;
+      display: flex; align-items: flex-end;
+    }
+    .notice-modal-overlay.hidden { display: none; }
+    .notice-modal {
+      background: var(--surface);
+      border-radius: 24px 24px 0 0;
+      padding: 24px 20px 32px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .notice-modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .notice-input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 12px;
+      font-size: 14px;
+      font-family: var(--font-body);
+      color: var(--text);
+      background: var(--surface);
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    .notice-input:focus { outline: none; border-color: var(--primary); }
+    .notice-textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    .notice-pin-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      color: var(--text2);
+    }
+    .notice-modal-btns {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-notice-cancel {
+      flex: 1;
+      padding: 13px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      background: var(--surface);
+      font-size: 15px;
+      font-family: var(--font-body);
+      cursor: pointer;
+      color: var(--text2);
+    }
+    .btn-notice-submit {
+      flex: 2;
+      padding: 13px;
+      border: none;
+      border-radius: var(--r-sm);
+      background: var(--primary);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: var(--font-body);
+      cursor: pointer;
+    }
+    .btn-notice-submit:active { opacity: .85; }
   </style>
 </head>
 <body>
@@ -1375,6 +1533,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       지출분석
     </button>
+    <button class="tab-btn" data-tab="notice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      공지사항
+    </button>
   </nav>
 
   <div class="tab-content">
@@ -1409,6 +1571,18 @@
           <div class="bar-chart" id="bar-chart"></div>
         </div>
       </div>
+    </div>
+
+    <!-- Notice Tab -->
+    <div id="tab-notice" class="tab-pane">
+      <div class="notice-container" id="notice-container">
+        <div class="notice-empty" id="notice-empty" style="display:none;">
+          <div style="font-size:40px;margin-bottom:12px;">📭</div>
+          <div style="color:var(--text2);font-size:14px;">등록된 공지사항이 없습니다</div>
+        </div>
+        <div id="notice-list"></div>
+      </div>
+      <button class="btn-write-notice" id="btn-write-notice" style="display:none;">＋ 공지 작성</button>
     </div>
   </div>
 
@@ -1637,6 +1811,7 @@ async function onUserReady(user) {
   currentUser = user;
   await loadSettings();
   await loadAllEntries();
+  await loadNotices();
   const profile = await loadProfile();
   if (!profile || !profile.agreedAt) showScreen('consent-screen');
   else enterMainApp();
@@ -1733,6 +1908,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.add('active');
     document.getElementById('tab-' + tab).classList.add('active');
     if (tab === 'expense') renderExpenseTab();
+    if (tab === 'notice') loadNotices();
   });
 });
 
@@ -2469,11 +2645,118 @@ if (!demoMode && auth) {
 }
 
 // ─────────────────────────────────────────────
+//  Notice Board
+// ─────────────────────────────────────────────
+const ADMIN_EMAIL = 'kjj0708@gmail.com';
+let noticesData = {};
+
+function isAdmin() {
+  return currentUser && currentUser.email === ADMIN_EMAIL;
+}
+
+async function loadNotices() {
+  const data = await dbGet('notices');
+  noticesData = data || {};
+  renderNotices();
+}
+
+function renderNotices() {
+  const list = document.getElementById('notice-list');
+  const empty = document.getElementById('notice-empty');
+  const writeBtn = document.getElementById('btn-write-notice');
+
+  if (writeBtn) writeBtn.style.display = isAdmin() ? 'block' : 'none';
+
+  const entries = Object.entries(noticesData)
+    .sort(([,a],[,b]) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || b.createdAt - a.createdAt);
+
+  if (entries.length === 0) {
+    empty.style.display = 'block';
+    list.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  list.innerHTML = entries.map(([id, n]) => `
+    <div class="notice-card${n.pinned ? ' pinned' : ''}">
+      <div class="notice-card-header">
+        ${n.pinned ? '<span class="notice-pin-badge">📌 고정</span>' : ''}
+        <div class="notice-title">${escapeHtml(n.title)}</div>
+      </div>
+      <div class="notice-body">${escapeHtml(n.body)}</div>
+      <div class="notice-meta">
+        <span>${formatNoticeDate(n.createdAt)}</span>
+        ${isAdmin() ? `<button class="notice-delete-btn" onclick="deleteNotice('${id}')">삭제</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatNoticeDate(ts) {
+  const d = new Date(ts);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+async function deleteNotice(id) {
+  if (!isAdmin()) return;
+  if (!confirm('공지사항을 삭제할까요?')) return;
+  delete noticesData[id];
+  await dbSet('notices', noticesData);
+  renderNotices();
+  showToast('공지사항이 삭제됐어요.');
+}
+
+// Write modal
+document.getElementById('btn-write-notice').addEventListener('click', () => {
+  document.getElementById('notice-title-input').value = '';
+  document.getElementById('notice-body-input').value = '';
+  document.getElementById('notice-pin-check').checked = false;
+  document.getElementById('notice-modal-overlay').classList.remove('hidden');
+});
+document.getElementById('btn-notice-cancel').addEventListener('click', () => {
+  document.getElementById('notice-modal-overlay').classList.add('hidden');
+});
+document.getElementById('btn-notice-submit').addEventListener('click', async () => {
+  const title = document.getElementById('notice-title-input').value.trim();
+  const body = document.getElementById('notice-body-input').value.trim();
+  const pinned = document.getElementById('notice-pin-check').checked;
+  if (!title) { showToast('제목을 입력해 주세요.'); return; }
+  if (!body) { showToast('내용을 입력해 주세요.'); return; }
+  const id = 'notice_' + Date.now();
+  noticesData[id] = { title, body, pinned, createdAt: Date.now() };
+  await dbSet('notices', noticesData);
+  document.getElementById('notice-modal-overlay').classList.add('hidden');
+  renderNotices();
+  showToast('공지사항이 등록됐어요! 📢');
+});
+
+// ─────────────────────────────────────────────
 //  Service Worker
 // ─────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
 }
 </script>
+
+<!-- Notice Write Modal -->
+<div class="notice-modal-overlay hidden" id="notice-modal-overlay">
+  <div class="notice-modal">
+    <div class="notice-modal-title">공지사항 작성</div>
+    <input class="notice-input" id="notice-title-input" placeholder="제목" maxlength="100" />
+    <textarea class="notice-input notice-textarea" id="notice-body-input" placeholder="내용을 입력하세요"></textarea>
+    <div class="notice-pin-row">
+      <input type="checkbox" id="notice-pin-check" />
+      <label for="notice-pin-check">상단 고정</label>
+    </div>
+    <div class="notice-modal-btns">
+      <button class="btn-notice-cancel" id="btn-notice-cancel">취소</button>
+      <button class="btn-notice-submit" id="btn-notice-submit">등록</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
