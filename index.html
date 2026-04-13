@@ -2863,6 +2863,15 @@ document.getElementById('img-lightbox').addEventListener('click', e => {
   if (e.target === e.currentTarget) document.getElementById('img-lightbox').classList.add('hidden');
 });
 
+// Expose notice functions to global scope (required for inline onclick in module script)
+window.toggleNotice  = toggleNotice;
+window.showDelConfirm = showDelConfirm;
+window.hideDelConfirm = hideDelConfirm;
+window.deleteNotice  = deleteNotice;
+window.openEditNotice = openEditNotice;
+window.openLightbox  = openLightbox;
+window.removeImg     = removeImg;
+
 // ─────────────────────────────────────────────
 //  Service Worker
 // ─────────────────────────────────────────────
