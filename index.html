@@ -1,0 +1,2498 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1a3c2b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="세컨하우스 다이어리" />
+  <meta name="description" content="세컨하우스·텃밭 방문 기록 앱" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>세컨하우스 다이어리</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:        #1e5c3a;
+      --primary-mid:    #2d7a52;
+      --primary-light:  #4a9e70;
+      --primary-pale:   #e6f4ec;
+      --primary-ultra:  #f0f8f3;
+      --surface:        #ffffff;
+      --surface2:       #f7faf8;
+      --bg:             #eef4f0;
+      --text:           #162d20;
+      --text2:          #4a6b57;
+      --text3:          #8aab96;
+      --border:         #d6e8dc;
+      --border2:        #eaf3ed;
+      --amber:          #c47a12;
+      --amber-bg:       #fef6e8;
+      --amber-border:   #f5d49a;
+      --red:            #c0392b;
+      --red-bg:         #fdecea;
+      --blue:           #1a6fa8;
+      --shadow-xs:      0 1px 2px rgba(30,92,58,.06);
+      --shadow-sm:      0 2px 8px rgba(30,92,58,.08), 0 1px 3px rgba(30,92,58,.04);
+      --shadow-md:      0 4px 16px rgba(30,92,58,.12), 0 2px 6px rgba(30,92,58,.06);
+      --shadow-lg:      0 8px 32px rgba(30,92,58,.16), 0 4px 12px rgba(30,92,58,.08);
+      --shadow-modal:   0 -4px 40px rgba(0,0,0,.18);
+      --r-xs:  6px;
+      --r-sm:  10px;
+      --r-md:  14px;
+      --r-lg:  18px;
+      --r-xl:  24px;
+      --r-full: 999px;
+      --font-display: 'DM Serif Display', serif;
+      --font-body:    'Noto Sans KR', sans-serif;
+      --header-h: 56px;
+      --tabbar-h: 50px;
+      --footer-h: 38px;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ═══════════════════════════════════════
+       LOADING
+    ═══════════════════════════════════════ */
+    #loading-overlay {
+      position: fixed; inset: 0;
+      background: var(--primary);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 9999;
+      gap: 20px;
+    }
+    #loading-overlay.hidden { display: none; }
+
+    .loading-icon {
+      width: 64px; height: 64px;
+      background: rgba(255,255,255,.15);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .loading-icon svg { width: 36px; height: 36px; color: #fff; }
+
+    .loading-spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(255,255,255,.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: rgba(255,255,255,.9);
+      letter-spacing: .3px;
+    }
+
+    /* ═══════════════════════════════════════
+       SCREENS
+    ═══════════════════════════════════════ */
+    .screen {
+      position: fixed; inset: 0;
+      display: none;
+      flex-direction: column;
+    }
+    .screen.active { display: flex; }
+
+    /* ═══════════════════════════════════════
+       LOGIN SCREEN
+    ═══════════════════════════════════════ */
+    #login-screen {
+      background: linear-gradient(160deg, #0f2e1c 0%, #1a4a2e 40%, #1e6040 70%, #245c3a 100%);
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 0 env(safe-area-inset-bottom, 0);
+    }
+
+    .login-bg-deco {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .login-bg-deco::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -20%;
+      width: 70vw; height: 70vw;
+      max-width: 340px; max-height: 340px;
+      background: radial-gradient(circle, rgba(74,158,112,.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .login-bg-deco::after {
+      content: '';
+      position: absolute;
+      bottom: 30%;
+      left: -15%;
+      width: 50vw; height: 50vw;
+      max-width: 280px; max-height: 280px;
+      background: radial-gradient(circle, rgba(255,255,255,.04) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .login-top {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 32px 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-badge {
+      width: 80px; height: 80px;
+      background: rgba(255,255,255,.12);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.2);
+    }
+    .login-badge svg {
+      width: 44px; height: 44px;
+      color: #fff;
+    }
+
+    .login-title {
+      font-family: var(--font-display);
+      font-size: 30px;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+    .login-subtitle {
+      font-size: 14px;
+      color: rgba(255,255,255,.65);
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .login-card {
+      width: 100%;
+      background: var(--surface);
+      border-radius: 28px 28px 0 0;
+      padding: 32px 24px calc(24px + env(safe-area-inset-bottom, 0));
+      box-shadow: var(--shadow-modal);
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-card-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 28px;
+    }
+
+    .btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 16px 20px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      transition: all .18s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-google:active { transform: scale(.98); background: var(--surface2); }
+    .btn-google svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .login-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--text3);
+      font-size: 12px;
+    }
+    .login-divider::before, .login-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .btn-demo {
+      width: 100%;
+      padding: 14px 20px;
+      background: var(--primary-ultra);
+      border: 1.5px solid var(--primary-pale);
+      border-radius: var(--r-md);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--primary-mid);
+      cursor: pointer;
+      transition: all .18s ease;
+    }
+    .btn-demo:active { background: var(--primary-pale); }
+
+    /* ═══════════════════════════════════════
+       CONSENT SCREEN
+    ═══════════════════════════════════════ */
+    #consent-screen {
+      background: var(--bg);
+      padding: 0;
+      justify-content: flex-end;
+    }
+
+    .consent-card {
+      width: 100%;
+      background: var(--surface);
+      border-radius: 28px 28px 0 0;
+      padding: 28px 20px calc(20px + env(safe-area-inset-bottom, 0));
+      box-shadow: var(--shadow-modal);
+    }
+
+    .consent-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 24px;
+    }
+
+    .consent-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .consent-desc {
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 20px;
+    }
+
+    .consent-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--r-md);
+      margin-bottom: 10px;
+    }
+    .consent-item input[type="checkbox"] {
+      width: 20px; height: 20px;
+      min-width: 20px;
+      margin-top: 1px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    .consent-item label {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.6;
+      cursor: pointer;
+    }
+    .consent-item label strong { color: var(--text); }
+    .tag-required {
+      display: inline-block;
+      font-size: 10px; font-weight: 700;
+      padding: 1px 6px;
+      background: var(--red); color: #fff;
+      border-radius: var(--r-full);
+      margin-left: 6px; vertical-align: middle;
+    }
+    .tag-optional {
+      display: inline-block;
+      font-size: 10px; font-weight: 700;
+      padding: 1px 6px;
+      background: var(--text3); color: #fff;
+      border-radius: var(--r-full);
+      margin-left: 6px; vertical-align: middle;
+    }
+
+    .btn-consent {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+      padding: 17px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-md);
+      font-family: var(--font-body);
+      font-size: 16px; font-weight: 700;
+      cursor: pointer;
+      transition: opacity .18s;
+      box-shadow: 0 4px 12px rgba(30,92,58,.35);
+    }
+    .btn-consent:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+
+    /* ═══════════════════════════════════════
+       MAIN SCREEN
+    ═══════════════════════════════════════ */
+    #main-screen {
+      background: var(--bg);
+      position: fixed; inset: 0;
+    }
+
+    /* Header */
+    .app-header {
+      height: var(--header-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      box-shadow: var(--shadow-xs);
+      flex-shrink: 0;
+      padding-top: env(safe-area-inset-top, 0);
+      height: calc(var(--header-h) + env(safe-area-inset-top, 0));
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-icon {
+      width: 34px; height: 34px;
+      background: var(--primary);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 6px rgba(30,92,58,.3);
+    }
+    .header-icon svg { width: 18px; height: 18px; color: #fff; }
+
+    .header-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      color: var(--text);
+      letter-spacing: -.2px;
+    }
+
+    .btn-settings {
+      width: 38px; height: 38px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--text2);
+      font-size: 17px;
+      transition: all .15s;
+    }
+    .btn-settings:active { background: var(--border); }
+
+    /* Tab bar */
+    .tab-bar {
+      display: flex;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border2);
+      height: var(--tabbar-h);
+      flex-shrink: 0;
+    }
+    .tab-btn {
+      flex: 1;
+      height: 100%;
+      background: none;
+      border: none;
+      font-family: var(--font-body);
+      font-size: 13px; font-weight: 500;
+      color: var(--text3);
+      cursor: pointer;
+      position: relative;
+      transition: color .15s;
+      display: flex; align-items: center; justify-content: center;
+      gap: 5px;
+    }
+    .tab-btn.active { color: var(--primary); font-weight: 700; }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 20%; right: 20%;
+      height: 2.5px;
+      background: var(--primary);
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* Tab content */
+    .tab-content {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .tab-pane {
+      position: absolute; inset: 0;
+      overflow-y: auto;
+      display: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tab-pane.active { display: block; }
+
+    /* App footer */
+    .app-footer {
+      height: var(--footer-h);
+      display: flex; align-items: center; justify-content: center;
+      background: var(--surface);
+      border-top: 1px solid var(--border2);
+      font-size: 11px;
+      color: var(--text3);
+      flex-shrink: 0;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    /* ═══════════════════════════════════════
+       CALENDAR TAB
+    ═══════════════════════════════════════ */
+    .calendar-container {
+      padding: 16px 14px 20px;
+    }
+
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .month-nav-btn {
+      width: 36px; height: 36px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      font-size: 18px; font-weight: 300;
+      color: var(--text2);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-xs);
+      transition: all .15s;
+    }
+    .month-nav-btn:active { background: var(--bg); }
+    .month-label {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--text);
+      letter-spacing: -.3px;
+    }
+
+    /* Calendar grid */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr) 3fr 3fr;
+      gap: 3px;
+    }
+
+    .cal-header-cell {
+      text-align: center;
+      padding: 5px 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text3);
+      letter-spacing: .3px;
+    }
+    .cal-header-cell.sat { color: var(--blue); }
+    .cal-header-cell.sun { color: var(--red); }
+
+    .cal-cell {
+      background: var(--surface);
+      border: 1.5px solid var(--border2);
+      border-radius: var(--r-sm);
+      min-height: 52px;
+      padding: 6px 5px 5px;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .cal-cell.weekend {
+      min-height: 84px;
+      background: var(--surface);
+    }
+    .cal-cell.empty {
+      background: transparent;
+      border-color: transparent;
+      cursor: default;
+      box-shadow: none;
+    }
+    .cal-cell:not(.empty):active {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px var(--primary-pale);
+    }
+    .cal-cell.today {
+      background: var(--primary-ultra);
+      border-color: var(--primary-light);
+    }
+    .cal-cell.visited {
+      border-color: var(--primary);
+      border-width: 2px;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .cal-date {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text2);
+      line-height: 1;
+    }
+    .cal-cell.today .cal-date { color: var(--primary); }
+    .cal-cell.visited .cal-date { color: var(--primary); }
+    .cal-cell.sat .cal-date { color: var(--blue); }
+    .cal-cell.sun .cal-date { color: var(--red); }
+
+    .cal-visited-dot {
+      position: absolute;
+      top: 5px; right: 5px;
+      width: 6px; height: 6px;
+      background: var(--primary);
+      border-radius: 50%;
+    }
+
+    .cal-expense {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--amber);
+      margin-top: 3px;
+      line-height: 1;
+    }
+
+    .cal-memo {
+      margin-top: 3px;
+      font-size: 9px;
+      line-height: 1.35;
+      color: var(--text2);
+      overflow: hidden;
+      white-space: pre-line;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      word-break: break-all;
+    }
+
+    /* Month summary */
+    .month-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .summary-item {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--r-md);
+      padding: 14px 10px;
+      text-align: center;
+      box-shadow: var(--shadow-xs);
+    }
+    .summary-value {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--primary);
+      line-height: 1;
+    }
+    .summary-label {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 5px;
+      font-weight: 500;
+    }
+
+    /* ═══════════════════════════════════════
+       EXPENSE TAB
+    ═══════════════════════════════════════ */
+    .expense-container {
+      padding: 16px 14px 20px;
+    }
+
+    .year-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .year-label {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--text);
+    }
+
+    .annual-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .annual-item {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--r-md);
+      padding: 16px 12px;
+      text-align: center;
+      box-shadow: var(--shadow-xs);
+    }
+    .annual-value {
+      font-family: var(--font-display);
+      font-size: 26px;
+      color: var(--primary);
+      line-height: 1;
+    }
+    .annual-label {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    .chart-section {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--r-lg);
+      padding: 18px 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-xs);
+    }
+    .chart-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text2);
+      margin-bottom: 16px;
+      letter-spacing: .2px;
+    }
+
+    .donut-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .donut-svg-wrap { flex-shrink: 0; }
+    .donut-legend {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .legend-label {
+      flex: 1;
+      font-size: 12px;
+      color: var(--text2);
+    }
+    .legend-pct {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 100px;
+      padding-bottom: 20px;
+      position: relative;
+    }
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+      position: relative;
+    }
+    .bar-fill-wrap {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+    }
+    .bar-fill {
+      width: 100%;
+      background: var(--primary-pale);
+      border-radius: 4px 4px 0 0;
+      transition: height .3s ease;
+      min-height: 3px;
+      border: 1px solid var(--border);
+      border-bottom: none;
+    }
+    .bar-fill.current-month {
+      background: var(--primary);
+      border-color: var(--primary-mid);
+    }
+    .bar-label {
+      position: absolute;
+      bottom: -18px;
+      font-size: 9px;
+      color: var(--text3);
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════
+       MODAL
+    ═══════════════════════════════════════ */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 500;
+      backdrop-filter: blur(2px);
+    }
+    .modal-overlay.active { display: flex; align-items: flex-end; }
+
+    .modal-sheet {
+      width: 100%;
+      max-height: 92vh;
+      background: var(--surface);
+      border-radius: 24px 24px 0 0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-modal);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    .modal-header {
+      padding: 14px 18px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border2);
+      flex-shrink: 0;
+    }
+
+    .modal-drag-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 14px;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      color: var(--text);
+    }
+
+    .btn-close {
+      width: 30px; height: 30px;
+      background: var(--bg);
+      border: none;
+      border-radius: var(--r-full);
+      font-size: 14px;
+      color: var(--text2);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .btn-close:active { background: var(--border); }
+
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 18px 20px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── Entry Modal Sections ── */
+    .lastyear-section {
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-border);
+      border-radius: var(--r-md);
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+    .lastyear-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--amber);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 10px;
+    }
+    .lastyear-empty {
+      font-size: 13px;
+      color: var(--text3);
+    }
+    .lastyear-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 0;
+      font-size: 13px;
+      color: var(--text2);
+      border-top: 1px solid var(--amber-border);
+    }
+    .lastyear-item:first-of-type { border-top: none; }
+    .lastyear-date {
+      font-size: 12px;
+      color: var(--amber);
+      font-weight: 600;
+      min-width: 36px;
+    }
+    .lastyear-item.highlight {
+      background: rgba(196,122,18,.08);
+      border-radius: var(--r-xs);
+      padding: 7px 8px;
+      margin: 0 -8px;
+      border-top: none;
+    }
+
+    .entry-section {
+      margin-bottom: 22px;
+    }
+    .entry-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 10px;
+    }
+
+    /* Visit toggle */
+    .toggle-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .toggle-btn {
+      padding: 13px 12px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text2);
+      cursor: pointer;
+      text-align: center;
+      transition: all .15s;
+    }
+    .toggle-btn.selected {
+      background: var(--primary-pale);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* Weather */
+    .weather-group {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .weather-btn {
+      padding: 14px 8px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-size: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .15s;
+      line-height: 1;
+    }
+    .weather-btn.selected {
+      background: var(--primary-pale);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30,92,58,.1);
+    }
+
+    /* Tags */
+    .tags-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tag-btn {
+      padding: 9px 16px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-full);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .tag-btn.selected {
+      background: var(--primary-pale);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* Memo */
+    .memo-textarea {
+      width: 100%;
+      min-height: 88px;
+      padding: 13px 14px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text);
+      resize: none;
+      outline: none;
+      transition: border-color .15s;
+      -webkit-appearance: none;
+    }
+    .memo-textarea:focus { border-color: var(--primary-light); }
+    .memo-textarea::placeholder { color: var(--text3); }
+
+    /* Expenses */
+    .expense-list { display: flex; flex-direction: column; gap: 8px; }
+    .expense-row {
+      display: grid;
+      grid-template-columns: 1fr 90px 80px 34px;
+      gap: 6px;
+      align-items: center;
+    }
+    .expense-input {
+      padding: 11px 12px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      width: 100%;
+      transition: border-color .15s;
+      -webkit-appearance: none;
+    }
+    .expense-input:focus { border-color: var(--primary-light); }
+    .expense-input::placeholder { color: var(--text3); }
+    .expense-input[type="number"]::-webkit-inner-spin-button,
+    .expense-input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    .expense-select {
+      padding: 11px 6px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      text-align: center;
+    }
+    .btn-delete-expense {
+      width: 34px; height: 38px;
+      background: var(--red-bg);
+      border: 1.5px solid #f5c6c3;
+      border-radius: var(--r-sm);
+      font-size: 13px;
+      color: var(--red);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .btn-add-expense {
+      width: 100%;
+      margin-top: 8px;
+      padding: 12px;
+      background: none;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--r-md);
+      font-size: 13px;
+      font-family: var(--font-body);
+      color: var(--text3);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .btn-add-expense:active { border-color: var(--primary); color: var(--primary); background: var(--primary-ultra); }
+
+    /* Affiliate banner */
+    .affiliate-banner {
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-border);
+      border-radius: var(--r-md);
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+    .affiliate-disclaimer {
+      font-size: 10px;
+      color: var(--text3);
+      margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .affiliate-disclaimer::before {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--amber);
+      border-radius: 50%;
+    }
+    .affiliate-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 11px 22px;
+      background: var(--amber);
+      color: #fff;
+      border-radius: var(--r-full);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: opacity .15s;
+      box-shadow: 0 3px 10px rgba(196,122,18,.3);
+    }
+    .affiliate-link:active { opacity: .85; }
+
+    /* Save button */
+    .btn-save {
+      width: 100%;
+      padding: 17px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-md);
+      font-family: var(--font-body);
+      font-size: 16px; font-weight: 700;
+      cursor: pointer;
+      transition: opacity .18s;
+      box-shadow: 0 4px 14px rgba(30,92,58,.35);
+    }
+    .btn-save:active { opacity: .9; }
+
+    /* ── Settings Modal ── */
+    .settings-section {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--r-md);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .settings-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 12px;
+    }
+
+    .tag-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border2);
+    }
+    .tag-row:last-child { border-bottom: none; }
+    .tag-row-info {
+      flex: 1;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .btn-tag-edit {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--r-xs);
+      padding: 5px 10px;
+      font-size: 11px; font-weight: 500;
+      color: var(--text2);
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+    .btn-tag-delete {
+      background: none;
+      border: 1px solid var(--red);
+      border-radius: var(--r-xs);
+      padding: 5px 10px;
+      font-size: 11px; font-weight: 500;
+      color: var(--red);
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+
+    .add-tag-form {
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .add-tag-form input {
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      font-size: 14px;
+      font-family: var(--font-body);
+      color: var(--text);
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .add-tag-form input:focus { border-color: var(--primary-light); }
+    .btn-add-tag {
+      padding: 10px 16px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-sm);
+      font-size: 13px; font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: var(--font-body);
+    }
+    .btn-add-tag:disabled { background: var(--border); cursor: not-allowed; }
+
+    .export-btn {
+      width: 100%;
+      padding: 13px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      font-size: 13px;
+      font-family: var(--font-body);
+      color: var(--text);
+      cursor: pointer;
+      transition: background .15s;
+      margin-bottom: 8px;
+      text-align: left;
+      display: flex; align-items: center;
+      gap: 10px;
+    }
+    .export-btn:active { background: var(--bg); }
+
+    .btn-logout {
+      width: 100%;
+      padding: 14px;
+      background: none;
+      border: 1.5px solid var(--red);
+      border-radius: var(--r-md);
+      font-size: 14px; font-weight: 700;
+      font-family: var(--font-body);
+      color: var(--red);
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-logout:active { background: var(--red-bg); }
+
+    /* ═══════════════════════════════════════
+       TOAST
+    ═══════════════════════════════════════ */
+    #toast {
+      position: fixed;
+      bottom: calc(60px + env(safe-area-inset-bottom, 0));
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: rgba(22,45,32,.92);
+      color: #fff;
+      padding: 11px 22px;
+      border-radius: var(--r-full);
+      font-size: 13px; font-weight: 500;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity .25s, transform .25s;
+      pointer-events: none;
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ═══════════════════════════════════════
+       PWA INSTALL BANNER
+    ═══════════════════════════════════════ */
+    #install-banner {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--primary);
+      color: #fff;
+      padding: 14px 18px calc(14px + env(safe-area-inset-bottom, 0));
+      display: none;
+      align-items: center;
+      gap: 12px;
+      z-index: 400;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.15);
+    }
+    #install-banner.visible { display: flex; }
+    .install-banner-text {
+      flex: 1;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .btn-install {
+      background: #fff;
+      color: var(--primary);
+      border: none;
+      border-radius: var(--r-sm);
+      padding: 8px 16px;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: var(--font-body);
+    }
+    .btn-install-dismiss {
+      background: none; border: none;
+      color: rgba(255,255,255,.6);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 2px;
+      line-height: 1;
+    }
+
+    /* ═══════════════════════════════════════
+       UTILITY
+    ═══════════════════════════════════════ */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay">
+  <div class="loading-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1v-9.5z"/>
+      <polyline points="9 21 9 12 15 12 15 21"/>
+    </svg>
+  </div>
+  <div class="loading-text">세컨하우스 다이어리</div>
+  <div class="loading-spinner"></div>
+</div>
+
+<!-- Login Screen -->
+<div id="login-screen" class="screen">
+  <div class="login-bg-deco"></div>
+  <div class="login-top">
+    <div class="login-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1v-9.5z"/>
+        <polyline points="9 21 9 12 15 12 15 21"/>
+      </svg>
+    </div>
+    <div class="login-title">세컨하우스 다이어리</div>
+    <div class="login-subtitle">텃밭·정원·별장 방문을 기록하고<br>활동과 지출을 한눈에 관리하세요</div>
+  </div>
+  <div class="login-card">
+    <div class="login-card-handle"></div>
+    <button class="btn-google" id="btn-google-login">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Google로 시작하기
+    </button>
+    <div class="login-divider">또는</div>
+    <button class="btn-demo" id="btn-demo-login">🏡 데모 모드로 체험하기</button>
+  </div>
+</div>
+
+<!-- Consent Screen -->
+<div id="consent-screen" class="screen">
+  <div class="consent-card">
+    <div class="consent-handle"></div>
+    <div class="consent-title">서비스 이용 동의</div>
+    <div class="consent-desc">서비스를 이용하려면 아래에 동의해 주세요.</div>
+
+    <div class="consent-item">
+      <input type="checkbox" id="consent-required" />
+      <label for="consent-required">
+        <strong>[필수] 개인정보 수집 및 이용 동의</strong>
+        <span class="tag-required">필수</span><br>
+        <span>수집항목: 이메일, 표시이름 / 이용목적: 로그인 및 데이터 동기화 / 보유기간: 탈퇴 시까지</span>
+      </label>
+    </div>
+    <div class="consent-item">
+      <input type="checkbox" id="consent-optional" />
+      <label for="consent-optional">
+        <strong>[필수] 앱 개선을 위한 익명 통계 수집 동의</strong>
+        <span class="tag-required">필수</span><br>
+        <span>수집항목: 앱 사용 패턴(익명) / 이용목적: 서비스 품질 개선 / 보유기간: 탈퇴 시까지</span>
+      </label>
+    </div>
+    <button class="btn-consent" id="btn-consent-submit" disabled>동의하고 시작하기</button>
+  </div>
+</div>
+
+<!-- Main Screen -->
+<div id="main-screen" class="screen">
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1v-9.5z"/>
+          <polyline points="9 21 9 12 15 12 15 21"/>
+        </svg>
+      </div>
+      <div class="header-title">세컨하우스 다이어리</div>
+    </div>
+    <button class="btn-settings" id="btn-open-settings" title="설정">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+    </button>
+  </header>
+
+  <nav class="tab-bar">
+    <button class="tab-btn active" data-tab="calendar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      캘린더
+    </button>
+    <button class="tab-btn" data-tab="expense">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      지출분석
+    </button>
+  </nav>
+
+  <div class="tab-content">
+    <!-- Calendar Tab -->
+    <div id="tab-calendar" class="tab-pane active">
+      <div class="calendar-container">
+        <div class="month-nav">
+          <button class="month-nav-btn" id="btn-prev-month">‹</button>
+          <div class="month-label" id="month-label"></div>
+          <button class="month-nav-btn" id="btn-next-month">›</button>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+        <div class="month-summary" id="month-summary"></div>
+      </div>
+    </div>
+
+    <!-- Expense Tab -->
+    <div id="tab-expense" class="tab-pane">
+      <div class="expense-container">
+        <div class="year-nav">
+          <button class="month-nav-btn" id="btn-prev-year">‹</button>
+          <div class="year-label" id="year-label"></div>
+          <button class="month-nav-btn" id="btn-next-year">›</button>
+        </div>
+        <div class="annual-grid" id="annual-grid"></div>
+        <div class="chart-section">
+          <div class="chart-title">카테고리별 지출</div>
+          <div class="donut-wrapper" id="donut-wrapper"></div>
+        </div>
+        <div class="chart-section">
+          <div class="chart-title">월별 지출</div>
+          <div class="bar-chart" id="bar-chart"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">만든이 : 강화힐링아지트</footer>
+</div>
+
+<!-- Entry Modal -->
+<div class="modal-overlay" id="entry-modal">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div class="modal-drag-handle" style="margin:0;position:absolute;top:10px;left:50%;transform:translateX(-50%);"></div>
+      <div class="modal-title" id="entry-modal-title"></div>
+      <button class="btn-close" id="btn-close-entry">✕</button>
+    </div>
+    <div class="modal-body" id="entry-modal-body"></div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div class="modal-title">설정</div>
+      <button class="btn-close" id="btn-close-settings">✕</button>
+    </div>
+    <div class="modal-body" id="settings-modal-body"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- PWA Install Banner -->
+<div id="install-banner">
+  <div class="install-banner-text">📲 홈화면에 추가하면 앱처럼 사용할 수 있어요!</div>
+  <button class="btn-install" id="btn-pwa-install">추가</button>
+  <button class="btn-install-dismiss" id="btn-pwa-dismiss">✕</button>
+</div>
+
+<script type="module">
+// ─────────────────────────────────────────────
+//  Firebase + Demo Mode Bootstrap
+// ─────────────────────────────────────────────
+const FIREBASE_VERSION = '10.7.1';
+const FB_BASE = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
+
+let firebaseConfig = null;
+try {
+  const mod = await import('./firebase-config.js');
+  firebaseConfig = mod.firebaseConfig;
+} catch (e) {
+  firebaseConfig = null;
+}
+
+let app, auth, db;
+let initializeApp, getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged;
+let getDatabase, dbRef, set, get, child;
+
+function isPlaceholderConfig(cfg) {
+  return !cfg || !cfg.apiKey || cfg.apiKey.startsWith('YOUR_') || cfg.projectId === 'YOUR_PROJECT_ID';
+}
+const demoMode = !firebaseConfig || isPlaceholderConfig(firebaseConfig);
+
+if (!demoMode) {
+  try {
+    ({ initializeApp } = await import(FB_BASE + 'firebase-app.js'));
+    ({ getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } =
+      await import(FB_BASE + 'firebase-auth.js'));
+    ({ getDatabase, ref: dbRef, set, get, child } =
+      await import(FB_BASE + 'firebase-database.js'));
+    app  = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db   = getDatabase(app);
+  } catch (err) {
+    console.warn('Firebase init failed, switching to demo mode:', err);
+    firebaseConfig = null;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  State
+// ─────────────────────────────────────────────
+let currentUser   = null;
+let currentMonth  = new Date();
+let currentYear   = new Date().getFullYear();
+let allEntries    = {};
+let userSettings  = { customTags: getDefaultTags(), plan: 'free' };
+let selectedDate  = null;
+let entryData     = {};
+let deferredPrompt = null;
+
+const CATEGORIES = ['시설유지','농업','식비','기타'];
+
+// ─────────────────────────────────────────────
+//  Default Tags
+// ─────────────────────────────────────────────
+function getDefaultTags() {
+  return [
+    { id: 'tag_001', emoji: '🌱', label: '텃밭',    order: 0 },
+    { id: 'tag_002', emoji: '🔧', label: '시설관리', order: 1 },
+    { id: 'tag_003', emoji: '🍽️', label: '식사',    order: 2 },
+    { id: 'tag_004', emoji: '🧹', label: '기타',    order: 3 },
+  ];
+}
+
+// ─────────────────────────────────────────────
+//  Affiliate Map
+// ─────────────────────────────────────────────
+const TAG_AD_MAP = {
+  '텃밭':    { label: '🛒 텃밭용품 보러가기',       url: 'https://bitl.bz/0bk0Rs' },
+  '시설관리': { label: '🛒 공구·자재 보러가기',     url: 'https://bitl.bz/0bk0Rs' },
+  '식사':    { label: '🛒 주방용품 보러가기',       url: 'https://bitl.bz/0bk0Rs' },
+  '기타':    { label: '🛒 세컨하우스 용품 보러가기', url: 'https://bitl.bz/0bk0Rs' },
+  '조경':    { label: '🛒 조경·정원 보러가기',      url: 'https://bitl.bz/0bk0Rs' },
+  '수도':    { label: '🛒 관개·호스용품 보러가기',  url: 'https://bitl.bz/0bk0Rs' },
+  'default': { label: '🛒 세컨하우스 용품 보러가기', url: 'https://bitl.bz/0bk0Rs' },
+};
+
+// ─────────────────────────────────────────────
+//  Utility
+// ─────────────────────────────────────────────
+function formatDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+function parseDate(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+function formatWon(amount) {
+  if (amount >= 10000) return '₩' + (amount / 10000).toFixed(1) + '만';
+  return '₩' + amount.toLocaleString();
+}
+function formatWonMan(amount) {
+  return (amount / 10000).toFixed(1);
+}
+function getMondayOffset(date) {
+  const day = date.getDay();
+  return day === 0 ? 6 : day - 1;
+}
+function isWeekend(date) {
+  const day = date.getDay();
+  return day === 6 || day === 0;
+}
+function getEntryTotal(entry) {
+  if (!entry || !entry.expenses) return 0;
+  return entry.expenses.reduce((s, ex) => s + (Number(ex.amount) || 0), 0);
+}
+function uid() { return currentUser ? currentUser.uid : 'demo'; }
+
+// ─────────────────────────────────────────────
+//  Toast
+// ─────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, duration = 2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), duration);
+}
+
+// ─────────────────────────────────────────────
+//  Screen Management
+// ─────────────────────────────────────────────
+function showScreen(id) {
+  ['loading-overlay','login-screen','consent-screen','main-screen'].forEach(s => {
+    const el = document.getElementById(s);
+    if (!el) return;
+    if (s === 'loading-overlay') el.classList.toggle('hidden', id !== s);
+    else el.classList.toggle('active', s === id);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  Data: Firebase or localStorage
+// ─────────────────────────────────────────────
+function lsKey(path) { return `shd_${path.replace(/\//g, '_')}`; }
+
+async function dbGet(path) {
+  if (demoMode || !db) {
+    const raw = localStorage.getItem(lsKey(path));
+    return raw ? JSON.parse(raw) : null;
+  }
+  try {
+    const snap = await get(child(dbRef(db), path));
+    return snap.exists() ? snap.val() : null;
+  } catch (err) {
+    const raw = localStorage.getItem(lsKey(path));
+    return raw ? JSON.parse(raw) : null;
+  }
+}
+async function dbSet(path, value) {
+  if (demoMode || !db) { localStorage.setItem(lsKey(path), JSON.stringify(value)); return; }
+  try {
+    await set(dbRef(db, path), value);
+  } catch (err) {
+    localStorage.setItem(lsKey(path), JSON.stringify(value));
+  }
+}
+async function loadAllEntries() {
+  const data = await dbGet(`users/${uid()}/entries`);
+  allEntries = data || {};
+}
+async function saveEntry(dateStr, entry) {
+  allEntries[dateStr] = entry;
+  await dbSet(`users/${uid()}/entries/${dateStr}`, entry);
+}
+async function loadSettings() {
+  const data = await dbGet(`users/${uid()}/settings`);
+  if (data) {
+    userSettings = { ...userSettings, ...data };
+    if (!userSettings.customTags) userSettings.customTags = getDefaultTags();
+  }
+}
+async function saveSettings() { await dbSet(`users/${uid()}/settings`, userSettings); }
+async function loadProfile() { return await dbGet(`users/${uid()}/profile`); }
+async function saveProfile(profile) { await dbSet(`users/${uid()}/profile`, profile); }
+
+// ─────────────────────────────────────────────
+//  Auth Flow
+// ─────────────────────────────────────────────
+async function onUserReady(user) {
+  currentUser = user;
+  await loadSettings();
+  await loadAllEntries();
+  const profile = await loadProfile();
+  if (!profile || !profile.agreedAt) showScreen('consent-screen');
+  else enterMainApp();
+}
+
+function enterMainApp() {
+  showScreen('main-screen');
+  renderCalendar();
+  trackVisitAndMaybeShowInstall();
+}
+
+// ─────────────────────────────────────────────
+//  PWA Install Prompt
+// ─────────────────────────────────────────────
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
+
+function trackVisitAndMaybeShowInstall() {
+  const visits = Number(localStorage.getItem('shd_visits') || 0) + 1;
+  localStorage.setItem('shd_visits', visits);
+  if (visits >= 3 && deferredPrompt) document.getElementById('install-banner').classList.add('visible');
+}
+
+document.getElementById('btn-pwa-install').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') showToast('홈화면에 추가되었어요! 📲');
+  deferredPrompt = null;
+  document.getElementById('install-banner').classList.remove('visible');
+});
+document.getElementById('btn-pwa-dismiss').addEventListener('click', () => {
+  document.getElementById('install-banner').classList.remove('visible');
+});
+
+// ─────────────────────────────────────────────
+//  Login Handlers
+// ─────────────────────────────────────────────
+document.getElementById('btn-google-login').addEventListener('click', async () => {
+  if (demoMode) { currentUser = { uid: 'demo', displayName: '데모', email: '' }; await onUserReady(currentUser); return; }
+
+  try {
+    const provider = new GoogleAuthProvider();
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      await signInWithRedirect(auth, provider);
+    } else {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        await onUserReady(result.user);
+      } catch (popupErr) {
+        if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request') {
+          await signInWithRedirect(auth, provider);
+        } else if (popupErr.code !== 'auth/popup-closed-by-user') {
+          showToast('로그인에 실패했습니다.');
+        }
+      }
+    }
+  } catch (err) {
+    showToast('로그인에 실패했습니다.');
+  }
+});
+
+
+document.getElementById('btn-demo-login').addEventListener('click', async () => {
+  currentUser = { uid: 'demo', displayName: '데모', email: '' };
+  await onUserReady(currentUser);
+});
+
+// ─────────────────────────────────────────────
+//  Consent Screen
+// ─────────────────────────────────────────────
+const consentRequired = document.getElementById('consent-required');
+const consentOptional = document.getElementById('consent-optional');
+const consentBtn = document.getElementById('btn-consent-submit');
+function updateConsentBtn() {
+  consentBtn.disabled = !(consentRequired.checked && consentOptional.checked);
+}
+consentRequired.addEventListener('change', updateConsentBtn);
+consentOptional.addEventListener('change', updateConsentBtn);
+
+document.getElementById('btn-consent-submit').addEventListener('click', async () => {
+  await saveProfile({
+    displayName: currentUser.displayName || '',
+    email: currentUser.email || '',
+    plan: 'free',
+    agreedAt: Date.now(),
+    optionalConsent: document.getElementById('consent-optional').checked,
+  });
+  enterMainApp();
+});
+
+// ─────────────────────────────────────────────
+//  Tab Switching
+// ─────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'expense') renderExpenseTab();
+  });
+});
+
+// ─────────────────────────────────────────────
+//  Month Navigation
+// ─────────────────────────────────────────────
+document.getElementById('btn-prev-month').addEventListener('click', () => {
+  currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+  renderCalendar();
+});
+document.getElementById('btn-next-month').addEventListener('click', () => {
+  currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+  renderCalendar();
+});
+
+// ─────────────────────────────────────────────
+//  Calendar Rendering
+// ─────────────────────────────────────────────
+function renderCalendar() {
+  const y = currentMonth.getFullYear();
+  const m = currentMonth.getMonth();
+  const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('month-label').textContent = `${y}년 ${months[m]}`;
+
+  const grid = document.getElementById('calendar-grid');
+  grid.innerHTML = '';
+
+  const days = ['월','화','수','목','금','토','일'];
+  const dayClasses = ['','','','','','sat','sun'];
+  days.forEach((d, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'cal-header-cell' + (dayClasses[i] ? ' ' + dayClasses[i] : '');
+    cell.textContent = d;
+    grid.appendChild(cell);
+  });
+
+  const firstDay = new Date(y, m, 1);
+  const lastDay  = new Date(y, m + 1, 0);
+  const offset   = getMondayOffset(firstDay);
+  const today    = formatDate(new Date());
+
+  for (let i = 0; i < offset; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-cell empty';
+    grid.appendChild(empty);
+  }
+
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const date = new Date(y, m, d);
+    const dateStr = formatDate(date);
+    const dayOfWeek = date.getDay();
+    const weekend = isWeekend(date);
+    const entry = allEntries[dateStr];
+    const total = getEntryTotal(entry);
+    const visited = entry && entry.visited;
+
+    const cell = document.createElement('div');
+    let cls = 'cal-cell';
+    if (weekend) cls += ' weekend';
+    if (dayOfWeek === 6) cls += ' sat';
+    if (dayOfWeek === 0) cls += ' sun';
+    if (dateStr === today) cls += ' today';
+    if (visited) cls += ' visited';
+    cell.className = cls;
+    cell.dataset.date = dateStr;
+
+    const dateEl = document.createElement('div');
+    dateEl.className = 'cal-date';
+    dateEl.textContent = d;
+    cell.appendChild(dateEl);
+
+    if (visited) {
+      const dot = document.createElement('div');
+      dot.className = 'cal-visited-dot';
+      cell.appendChild(dot);
+    }
+
+    if (total > 0) {
+      const expEl = document.createElement('div');
+      expEl.className = 'cal-expense';
+      expEl.textContent = formatWon(total);
+      cell.appendChild(expEl);
+    }
+
+    if (entry && entry.memo) {
+      const memoEl = document.createElement('div');
+      memoEl.className = 'cal-memo';
+      memoEl.textContent = entry.memo;
+      cell.appendChild(memoEl);
+    }
+
+    cell.addEventListener('click', () => openEntryModal(dateStr));
+    grid.appendChild(cell);
+  }
+
+  renderMonthSummary(y, m);
+}
+
+function renderMonthSummary(y, m) {
+  const container = document.getElementById('month-summary');
+  let visitDays = 0, totalExpense = 0, activityCount = 0;
+
+  Object.entries(allEntries).forEach(([dateStr, entry]) => {
+    const d = parseDate(dateStr);
+    if (d.getFullYear() === y && d.getMonth() === m) {
+      if (entry.visited) visitDays++;
+      totalExpense += getEntryTotal(entry);
+      if (entry.tags) activityCount += entry.tags.length;
+    }
+  });
+
+  container.innerHTML = `
+    <div class="summary-item">
+      <div class="summary-value">${visitDays}</div>
+      <div class="summary-label">방문일수</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-value">${formatWonMan(totalExpense)}</div>
+      <div class="summary-label">월지출(만원)</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-value">${activityCount}</div>
+      <div class="summary-label">활동건수</div>
+    </div>
+  `;
+}
+
+// ─────────────────────────────────────────────
+//  Entry Modal
+// ─────────────────────────────────────────────
+function openEntryModal(dateStr) {
+  selectedDate = dateStr;
+  const existing = allEntries[dateStr] || {};
+  entryData = {
+    visited: existing.visited ?? true,
+    weather: existing.weather || '',
+    tags: existing.tags ? [...existing.tags] : [],
+    memo: existing.memo || '',
+    expenses: existing.expenses ? JSON.parse(JSON.stringify(existing.expenses)) : [],
+  };
+
+  const date = parseDate(dateStr);
+  const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const weekDays = ['일','월','화','수','목','금','토'];
+  document.getElementById('entry-modal-title').textContent =
+    `${date.getFullYear()}년 ${months[date.getMonth()]} ${date.getDate()}일 (${weekDays[date.getDay()]})`;
+
+  renderEntryModalBody();
+  document.getElementById('entry-modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEntryModal() {
+  document.getElementById('entry-modal').classList.remove('active');
+  document.body.style.overflow = '';
+  selectedDate = null;
+  entryData = {};
+}
+
+document.getElementById('btn-close-entry').addEventListener('click', closeEntryModal);
+document.getElementById('entry-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('entry-modal')) closeEntryModal();
+});
+
+function getLastYearEntries(dateStr) {
+  const date = parseDate(dateStr);
+  const lyDate = new Date(date.getFullYear() - 1, date.getMonth(), date.getDate());
+  const results = [];
+  const margin = 14 * 24 * 60 * 60 * 1000;
+
+  Object.entries(allEntries).forEach(([ds, entry]) => {
+    const d = parseDate(ds);
+    if (d.getFullYear() !== lyDate.getFullYear()) return;
+    if (Math.abs(d - lyDate) <= margin) {
+      results.push({ dateStr: ds, entry, isExact: ds === formatDate(lyDate) });
+    }
+  });
+  results.sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+  return results;
+}
+
+function renderEntryModalBody() {
+  const body = document.getElementById('entry-modal-body');
+  body.innerHTML = '';
+
+  // 작년 이맘때
+  const lyEntries = getLastYearEntries(selectedDate);
+  const lySection = document.createElement('div');
+  lySection.className = 'lastyear-section';
+  lySection.innerHTML = `<div class="lastyear-title">📅 작년 이맘때</div>`;
+  if (lyEntries.length === 0) {
+    lySection.innerHTML += `<div class="lastyear-empty">작년 이 시기의 기록이 없어요.</div>`;
+  } else {
+    lyEntries.forEach(({ dateStr, entry, isExact }) => {
+      const d = parseDate(dateStr);
+      const item = document.createElement('div');
+      item.className = 'lastyear-item' + (isExact ? ' highlight' : '');
+      const tags = userSettings.customTags
+        .filter(t => (entry.tags||[]).includes(t.id))
+        .map(t => t.emoji).join(' ');
+      item.innerHTML = `<span class="lastyear-date">${d.getMonth()+1}/${d.getDate()}</span>
+        ${entry.visited ? '✅' : '❌'} ${tags} ${entry.memo ? '· ' + entry.memo.slice(0,30) : ''}`;
+      lySection.appendChild(item);
+    });
+  }
+  body.appendChild(lySection);
+
+  // 방문여부
+  const visitSection = document.createElement('div');
+  visitSection.className = 'entry-section';
+  visitSection.innerHTML = `<div class="entry-section-title">방문 여부</div>`;
+  const visitGroup = document.createElement('div');
+  visitGroup.className = 'toggle-group';
+  [['🏡 방문했어요', true], ['🚗 미방문', false]].forEach(([label, val]) => {
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn' + (entryData.visited === val ? ' selected' : '');
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+      entryData.visited = val;
+      visitGroup.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+    visitGroup.appendChild(btn);
+  });
+  visitSection.appendChild(visitGroup);
+  body.appendChild(visitSection);
+
+  // 날씨
+  const weatherSection = document.createElement('div');
+  weatherSection.className = 'entry-section';
+  weatherSection.innerHTML = `<div class="entry-section-title">날씨</div>`;
+  const weatherGroup = document.createElement('div');
+  weatherGroup.className = 'weather-group';
+  [['☀️','맑음'],['🌤️','구름'],['🌧️','비'],['❄️','눈']].forEach(([emoji, label]) => {
+    const btn = document.createElement('button');
+    btn.className = 'weather-btn' + (entryData.weather === emoji ? ' selected' : '');
+    btn.textContent = emoji;
+    btn.title = label;
+    btn.addEventListener('click', () => {
+      entryData.weather = entryData.weather === emoji ? '' : emoji;
+      weatherGroup.querySelectorAll('.weather-btn').forEach(b => b.classList.remove('selected'));
+      if (entryData.weather) btn.classList.add('selected');
+    });
+    weatherGroup.appendChild(btn);
+  });
+  weatherSection.appendChild(weatherGroup);
+  body.appendChild(weatherSection);
+
+  // 활동태그
+  const tagSection = document.createElement('div');
+  tagSection.className = 'entry-section';
+  tagSection.innerHTML = `<div class="entry-section-title">활동 태그</div>`;
+  const tagsGroup = document.createElement('div');
+  tagsGroup.className = 'tags-group';
+  userSettings.customTags.sort((a,b) => a.order - b.order).forEach(tag => {
+    const btn = document.createElement('button');
+    btn.className = 'tag-btn' + (entryData.tags.includes(tag.id) ? ' selected' : '');
+    btn.innerHTML = `${tag.emoji} ${tag.label}`;
+    btn.addEventListener('click', () => {
+      const idx = entryData.tags.indexOf(tag.id);
+      if (idx >= 0) { entryData.tags.splice(idx, 1); btn.classList.remove('selected'); }
+      else { entryData.tags.push(tag.id); btn.classList.add('selected'); }
+      updateAffiliateBanner();
+    });
+    tagsGroup.appendChild(btn);
+  });
+  tagSection.appendChild(tagsGroup);
+  body.appendChild(tagSection);
+
+  // 활동메모
+  const memoSection = document.createElement('div');
+  memoSection.className = 'entry-section';
+  memoSection.innerHTML = `<div class="entry-section-title">활동 메모</div>`;
+  const textarea = document.createElement('textarea');
+  textarea.className = 'memo-textarea';
+  textarea.placeholder = '오늘의 활동을 기록해보세요...';
+  textarea.value = entryData.memo;
+  textarea.addEventListener('input', () => { entryData.memo = textarea.value; });
+  memoSection.appendChild(textarea);
+  body.appendChild(memoSection);
+
+  // 지출내역
+  const expenseSection = document.createElement('div');
+  expenseSection.className = 'entry-section';
+  expenseSection.innerHTML = `<div class="entry-section-title">지출 내역</div>`;
+  const expenseList = document.createElement('div');
+  expenseList.className = 'expense-list';
+  expenseList.id = 'expense-list';
+
+  function renderExpenseList() {
+    expenseList.innerHTML = '';
+    entryData.expenses.forEach((ex, idx) => {
+      const row = document.createElement('div');
+      row.className = 'expense-row';
+
+      const nameInput = document.createElement('input');
+      nameInput.className = 'expense-input';
+      nameInput.type = 'text';
+      nameInput.placeholder = '항목명';
+      nameInput.value = ex.name || '';
+      nameInput.addEventListener('input', () => { entryData.expenses[idx].name = nameInput.value; });
+
+      const amountInput = document.createElement('input');
+      amountInput.className = 'expense-input';
+      amountInput.type = 'number';
+      amountInput.placeholder = '금액';
+      amountInput.min = '0';
+      amountInput.value = ex.amount || '';
+      amountInput.addEventListener('input', () => { entryData.expenses[idx].amount = Number(amountInput.value); });
+
+      const catSelect = document.createElement('select');
+      catSelect.className = 'expense-select';
+      CATEGORIES.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat; opt.textContent = cat;
+        if (ex.category === cat) opt.selected = true;
+        catSelect.appendChild(opt);
+      });
+      catSelect.addEventListener('change', () => { entryData.expenses[idx].category = catSelect.value; });
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn-delete-expense';
+      delBtn.textContent = '✕';
+      delBtn.addEventListener('click', () => { entryData.expenses.splice(idx, 1); renderExpenseList(); });
+
+      row.appendChild(nameInput);
+      row.appendChild(amountInput);
+      row.appendChild(catSelect);
+      row.appendChild(delBtn);
+      expenseList.appendChild(row);
+    });
+  }
+
+  renderExpenseList();
+  expenseSection.appendChild(expenseList);
+
+  const addExpBtn = document.createElement('button');
+  addExpBtn.className = 'btn-add-expense';
+  addExpBtn.textContent = '+ 지출 추가';
+  addExpBtn.addEventListener('click', () => {
+    entryData.expenses.push({ name: '', amount: 0, category: '기타' });
+    renderExpenseList();
+  });
+  expenseSection.appendChild(addExpBtn);
+  body.appendChild(expenseSection);
+
+  // Affiliate banner
+  const banner = document.createElement('div');
+  banner.className = 'affiliate-banner';
+  banner.id = 'affiliate-banner';
+  body.appendChild(banner);
+  updateAffiliateBanner();
+
+  // Save button
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'btn-save';
+  saveBtn.textContent = '저장하기';
+  saveBtn.addEventListener('click', saveEntryData);
+  body.appendChild(saveBtn);
+}
+
+function updateAffiliateBanner() {
+  if (userSettings.plan === 'pro') return;
+  const banner = document.getElementById('affiliate-banner');
+  if (!banner) return;
+  let ad = TAG_AD_MAP['default'];
+  for (const tagId of entryData.tags) {
+    const tag = userSettings.customTags.find(t => t.id === tagId);
+    if (tag && TAG_AD_MAP[tag.label]) { ad = TAG_AD_MAP[tag.label]; break; }
+  }
+  banner.innerHTML = `
+    <div class="affiliate-disclaimer">파트너 링크 · 광고 포함</div>
+    <a class="affiliate-link" href="${ad.url}" target="_blank" rel="noopener noreferrer">${ad.label}</a>
+  `;
+}
+
+async function saveEntryData() {
+  if (!selectedDate) return;
+  try {
+    await saveEntry(selectedDate, { ...entryData });
+    renderCalendar();
+    closeEntryModal();
+    showToast('저장되었어요! ✅');
+  } catch (err) {
+    showToast('저장 실패: ' + err.message);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Expense Tab
+// ─────────────────────────────────────────────
+document.getElementById('btn-prev-year').addEventListener('click', () => { currentYear--; renderExpenseTab(); });
+document.getElementById('btn-next-year').addEventListener('click', () => { currentYear++; renderExpenseTab(); });
+
+const CAT_COLORS = { '시설유지': '#1e5c3a', '농업': '#2980b9', '식비': '#c47a12', '기타': '#8aab96' };
+
+function renderExpenseTab() {
+  document.getElementById('year-label').textContent = `${currentYear}년`;
+
+  let totalVisit = 0, totalActivity = 0, totalExpense = 0;
+  const monthlyExpenses = Array(12).fill(0);
+  const catExpenses = {};
+
+  Object.entries(allEntries).forEach(([dateStr, entry]) => {
+    const d = parseDate(dateStr);
+    if (d.getFullYear() !== currentYear) return;
+    const mi = d.getMonth();
+    if (entry.visited) totalVisit++;
+    if (entry.tags) totalActivity += entry.tags.length;
+    const expTotal = getEntryTotal(entry);
+    totalExpense += expTotal;
+    monthlyExpenses[mi] += expTotal;
+    if (entry.expenses) {
+      entry.expenses.forEach(ex => {
+        const cat = ex.category || '기타';
+        catExpenses[cat] = (catExpenses[cat] || 0) + (Number(ex.amount) || 0);
+      });
+    }
+  });
+
+  document.getElementById('annual-grid').innerHTML = `
+    <div class="annual-item"><div class="annual-value">${totalVisit}</div><div class="annual-label">방문일</div></div>
+    <div class="annual-item"><div class="annual-value">${totalActivity}</div><div class="annual-label">활동건수</div></div>
+    <div class="annual-item"><div class="annual-value">${formatWonMan(totalExpense)}</div><div class="annual-label">지출합계(만원)</div></div>
+    <div class="annual-item"><div class="annual-value">${formatWonMan(totalExpense / 12)}</div><div class="annual-label">월평균(만원)</div></div>
+  `;
+
+  renderDonutChart(catExpenses, totalExpense);
+  renderBarChart(monthlyExpenses);
+}
+
+function renderDonutChart(catExpenses, total) {
+  const wrapper = document.getElementById('donut-wrapper');
+  wrapper.innerHTML = '';
+
+  const entries = Object.entries(catExpenses);
+  if (total === 0 || entries.length === 0) {
+    wrapper.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:12px 0;">지출 데이터가 없습니다.</div>';
+    return;
+  }
+
+  const size = 120, cx = 60, cy = 60, R = 46, r = 28;
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('width', size);
+  svg.setAttribute('height', size);
+  svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+
+  function polarToXY(angle, radius) {
+    const rad = (angle - 90) * Math.PI / 180;
+    return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
+  }
+  function makeArcPath(s, e, oR, iR) {
+    const large = (e - s) > 180 ? 1 : 0;
+    const o1 = polarToXY(s, oR), o2 = polarToXY(e, oR);
+    const i1 = polarToXY(e, iR), i2 = polarToXY(s, iR);
+    return `M ${o1.x} ${o1.y} A ${oR} ${oR} 0 ${large} 1 ${o2.x} ${o2.y} L ${i1.x} ${i1.y} A ${iR} ${iR} 0 ${large} 0 ${i2.x} ${i2.y} Z`;
+  }
+
+  let cumAngle = 0;
+  const legend = document.createElement('div');
+  legend.className = 'donut-legend';
+
+  entries.forEach(([cat, amt]) => {
+    const pct = amt / total;
+    const angle = pct * 360;
+    const color = CAT_COLORS[cat] || '#888';
+    const path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', makeArcPath(cumAngle, cumAngle + angle, R, r));
+    path.setAttribute('fill', color);
+    svg.appendChild(path);
+    cumAngle += angle;
+
+    const li = document.createElement('div');
+    li.className = 'legend-item';
+    li.innerHTML = `
+      <div class="legend-dot" style="background:${color}"></div>
+      <span class="legend-label">${cat}</span>
+      <span class="legend-pct">${Math.round(pct * 100)}%</span>
+    `;
+    legend.appendChild(li);
+  });
+
+  const text = document.createElementNS(svgNS, 'text');
+  text.setAttribute('x', cx); text.setAttribute('y', cy + 5);
+  text.setAttribute('text-anchor', 'middle');
+  text.setAttribute('font-size', '10');
+  text.setAttribute('fill', 'var(--text3)');
+  text.textContent = formatWon(total);
+  svg.appendChild(text);
+
+  const svgWrap = document.createElement('div');
+  svgWrap.className = 'donut-svg-wrap';
+  svgWrap.appendChild(svg);
+  wrapper.appendChild(svgWrap);
+  wrapper.appendChild(legend);
+}
+
+function renderBarChart(monthlyExpenses) {
+  const container = document.getElementById('bar-chart');
+  container.innerHTML = '';
+  const maxAmt = Math.max(...monthlyExpenses, 1);
+  const nowMonth = new Date().getMonth();
+  const nowYear  = new Date().getFullYear();
+
+  monthlyExpenses.forEach((amt, mi) => {
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    const fillWrap = document.createElement('div');
+    fillWrap.className = 'bar-fill-wrap';
+    const fill = document.createElement('div');
+    fill.className = 'bar-fill' + (mi === nowMonth && currentYear === nowYear ? ' current-month' : '');
+    fill.style.height = Math.round((amt / maxAmt) * 100) + '%';
+    fillWrap.appendChild(fill);
+    const labelEl = document.createElement('div');
+    labelEl.className = 'bar-label';
+    labelEl.textContent = mi + 1;
+    col.appendChild(fillWrap);
+    col.appendChild(labelEl);
+    container.appendChild(col);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  Settings Modal
+// ─────────────────────────────────────────────
+document.getElementById('btn-open-settings').addEventListener('click', openSettingsModal);
+document.getElementById('btn-close-settings').addEventListener('click', closeSettingsModal);
+document.getElementById('settings-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('settings-modal')) closeSettingsModal();
+});
+
+function openSettingsModal() { renderSettingsModal(); document.getElementById('settings-modal').classList.add('active'); }
+function closeSettingsModal() { document.getElementById('settings-modal').classList.remove('active'); }
+
+function renderSettingsModal() {
+  const body = document.getElementById('settings-modal-body');
+  body.innerHTML = '';
+
+  // Tag management
+  const tagSection = document.createElement('div');
+  tagSection.className = 'settings-section';
+  tagSection.innerHTML = `<div class="settings-section-title">활동태그 관리 &nbsp;<span style="font-weight:400">${userSettings.customTags.length}/12</span></div>`;
+
+  const tagList = document.createElement('div');
+  userSettings.customTags.sort((a,b) => a.order - b.order).forEach(tag => {
+    const row = document.createElement('div');
+    row.className = 'tag-row';
+    row.innerHTML = `<div class="tag-row-info">${tag.emoji} ${tag.label}</div>`;
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn-tag-edit';
+    editBtn.textContent = '이름 변경';
+    editBtn.addEventListener('click', () => {
+      const newLabel = prompt(`"${tag.label}" 태그의 새 이름:`, tag.label);
+      if (newLabel && newLabel.trim()) {
+        tag.label = newLabel.trim();
+        saveSettings().then(() => { renderSettingsModal(); showToast('태그가 수정되었어요.'); });
+      }
+    });
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn-tag-delete';
+    delBtn.textContent = '삭제';
+    delBtn.addEventListener('click', () => {
+      if (confirm(`"${tag.label}" 태그를 삭제할까요?`)) {
+        userSettings.customTags = userSettings.customTags.filter(t => t.id !== tag.id);
+        saveSettings().then(() => { renderSettingsModal(); renderCalendar(); showToast('태그가 삭제되었어요.'); });
+      }
+    });
+
+    row.appendChild(editBtn);
+    row.appendChild(delBtn);
+    tagList.appendChild(row);
+  });
+  tagSection.appendChild(tagList);
+
+  if (userSettings.customTags.length < 12) {
+    const addForm = document.createElement('div');
+    addForm.className = 'add-tag-form';
+    const emojiInput = document.createElement('input');
+    emojiInput.placeholder = '🌿';
+    emojiInput.maxLength = 4;
+    emojiInput.style.textAlign = 'center';
+    emojiInput.style.fontSize = '18px';
+    const labelInput = document.createElement('input');
+    labelInput.placeholder = '태그 이름';
+    const addBtn = document.createElement('button');
+    addBtn.className = 'btn-add-tag';
+    addBtn.textContent = '추가';
+    addBtn.addEventListener('click', () => {
+      const emoji = emojiInput.value.trim() || '🏷️';
+      const label = labelInput.value.trim();
+      if (!label) { showToast('태그 이름을 입력하세요.'); return; }
+      if (userSettings.customTags.length >= 12) { showToast('무료 플랜은 최대 12개까지 가능해요.'); return; }
+      userSettings.customTags.push({ id: 'tag_' + Date.now(), emoji, label, order: userSettings.customTags.length });
+      saveSettings().then(() => { renderSettingsModal(); showToast('태그가 추가되었어요! 🎉'); });
+    });
+    addForm.appendChild(emojiInput);
+    addForm.appendChild(labelInput);
+    addForm.appendChild(addBtn);
+    tagSection.appendChild(addForm);
+  }
+  body.appendChild(tagSection);
+
+  // Export
+  const exportSection = document.createElement('div');
+  exportSection.className = 'settings-section';
+  exportSection.innerHTML = `<div class="settings-section-title">데이터 내보내기 / 가져오기</div>`;
+  const jsonBtn = document.createElement('button');
+  jsonBtn.className = 'export-btn';
+  jsonBtn.innerHTML = '📄 JSON 내보내기';
+  jsonBtn.addEventListener('click', exportJSON);
+  const csvBtn = document.createElement('button');
+  csvBtn.className = 'export-btn';
+  csvBtn.innerHTML = '📊 CSV 내보내기 (Excel)';
+  csvBtn.addEventListener('click', exportCSV);
+  const importBtn = document.createElement('button');
+  importBtn.className = 'export-btn';
+  importBtn.innerHTML = '📥 JSON 가져오기';
+  importBtn.addEventListener('click', importJSON);
+  exportSection.appendChild(jsonBtn);
+  exportSection.appendChild(csvBtn);
+  exportSection.appendChild(importBtn);
+  body.appendChild(exportSection);
+
+  // Account
+  const userSection = document.createElement('div');
+  userSection.className = 'settings-section';
+  userSection.innerHTML = `
+    <div class="settings-section-title">계정</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6;">
+      ${currentUser ? (currentUser.displayName || '사용자') : ''}
+      ${currentUser?.email ? `<br><span style="color:var(--text3)">${currentUser.email}</span>` : ''}
+      ${demoMode ? '<br><span style="color:var(--amber);font-weight:600;">데모 모드</span>' : ''}
+    </div>
+  `;
+  const logoutBtn = document.createElement('button');
+  logoutBtn.className = 'btn-logout';
+  logoutBtn.textContent = '로그아웃';
+  logoutBtn.addEventListener('click', async () => {
+    if (!confirm('로그아웃 하시겠어요?')) return;
+    if (!demoMode && auth) { try { await signOut(auth); } catch(e) {} }
+    currentUser = null; allEntries = {};
+    userSettings = { customTags: getDefaultTags(), plan: 'free' };
+    closeSettingsModal();
+    showScreen('login-screen');
+    showToast('로그아웃 되었어요.');
+  });
+  userSection.appendChild(logoutBtn);
+  body.appendChild(userSection);
+
+  const ver = document.createElement('div');
+  ver.style.cssText = 'text-align:center;font-size:11px;color:var(--text3);margin-top:4px;';
+  ver.textContent = '세컨하우스 다이어리 v1.0.0' + (demoMode ? ' (데모)' : '');
+  body.appendChild(ver);
+}
+
+// ─────────────────────────────────────────────
+//  Export
+// ─────────────────────────────────────────────
+function exportJSON() {
+  const data = { entries: allEntries, settings: userSettings, exportedAt: new Date().toISOString() };
+  downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), `secondhouse-diary-${formatDate(new Date())}.json`);
+  showToast('JSON 파일이 다운로드됩니다.');
+}
+
+function exportCSV() {
+  const BOM = '\uFEFF';
+  const headers = ['날짜','방문여부','날씨','태그','메모','지출합계','지출항목'];
+  const rows = [headers.join(',')];
+  Object.entries(allEntries).sort(([a],[b]) => a.localeCompare(b)).forEach(([dateStr, entry]) => {
+    const tags = (entry.tags || []).map(id => userSettings.customTags.find(t => t.id === id)).filter(Boolean).map(t => t.emoji + t.label).join('|');
+    const expTotal = getEntryTotal(entry);
+    const expItems = (entry.expenses || []).map(ex => `${ex.name}:${ex.amount}(${ex.category})`).join('|');
+    rows.push([dateStr, entry.visited ? '방문' : '미방문', entry.weather || '', tags, (entry.memo || '').replace(/,/g, '，').replace(/\n/g, ' '), expTotal, expItems].map(v => `"${v}"`).join(','));
+  });
+  downloadBlob(new Blob([BOM + rows.join('\n')], { type: 'text/csv;charset=utf-8;' }), `secondhouse-diary-${formatDate(new Date())}.csv`);
+  showToast('CSV 파일이 다운로드됩니다.');
+}
+
+function importJSON() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.addEventListener('change', async () => {
+    const file = input.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!data.entries || typeof data.entries !== 'object') {
+        showToast('올바른 형식의 JSON 파일이 아니에요.'); return;
+      }
+      // Merge entries (imported data wins on conflict)
+      allEntries = { ...allEntries, ...data.entries };
+      // Merge settings if present
+      if (data.settings) {
+        if (data.settings.customTags) userSettings.customTags = data.settings.customTags;
+        if (data.settings.plan) userSettings.plan = data.settings.plan;
+      }
+      await Promise.all([
+        dbSet(`users/${currentUser.uid}/entries`, allEntries),
+        saveSettings(),
+      ]);
+      renderCalendar();
+      closeSettingsModal();
+      showToast(`✅ ${Object.keys(data.entries).length}건의 일지를 가져왔어요!`);
+    } catch (e) {
+      showToast('파일을 읽는 중 오류가 발생했어요.');
+    }
+  });
+  input.click();
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+}
+
+// ─────────────────────────────────────────────
+//  Firebase Auth State Listener
+// ─────────────────────────────────────────────
+if (!demoMode && auth) {
+  // 리다이렉트 로그인 결과 처리
+  getRedirectResult(auth).then(async result => {
+    if (result && result.user) await onUserReady(result.user);
+  }).catch(() => {});
+
+  onAuthStateChanged(auth, async user => {
+    if (user) await onUserReady(user);
+    else showScreen('login-screen');
+  });
+} else {
+  showScreen('login-screen');
+}
+
+// ─────────────────────────────────────────────
+//  Service Worker
+// ─────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
+}
+</script>
+</body>
+</html>

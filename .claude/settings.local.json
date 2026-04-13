@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(netlify deploy:*)",
+      "Bash(netlify sites:list)",
+      "Bash(netlify api:*)"
+    ]
+  }
+}

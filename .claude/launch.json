@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "세컨하우스 일지 (Static Server)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "serve", ".", "--listen", "3001", "--no-clipboard"],
+      "port": 3001
+    }
+  ]
+}
