@@ -1673,7 +1673,7 @@ try {
 
 let app, auth, db;
 let initializeApp, getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged;
-let getDatabase, dbRef, set, get, child;
+let getDatabase, dbRef, set, get, child, remove;
 
 function isPlaceholderConfig(cfg) {
   return !cfg || !cfg.apiKey || cfg.apiKey.startsWith('YOUR_') || cfg.projectId === 'YOUR_PROJECT_ID';
@@ -1685,7 +1685,7 @@ if (!demoMode) {
     ({ initializeApp } = await import(FB_BASE + 'firebase-app.js'));
     ({ getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } =
       await import(FB_BASE + 'firebase-auth.js'));
-    ({ getDatabase, ref: dbRef, set, get, child } =
+    ({ getDatabase, ref: dbRef, set, get, child, remove } =
       await import(FB_BASE + 'firebase-database.js'));
     app  = initializeApp(firebaseConfig);
     auth = getAuth(app);
@@ -2709,6 +2709,7 @@ function renderNotices() {
   if (writeBtn) writeBtn.style.display = isAdmin() ? 'block' : 'none';
 
   const entries = Object.entries(noticesData)
+    .filter(([,n]) => n && typeof n === 'object')
     .sort(([,a],[,b]) => (b.pinned?1:0)-(a.pinned?1:0) || b.createdAt-a.createdAt);
 
   if (entries.length === 0) { empty.style.display='block'; list.innerHTML=''; return; }
@@ -2757,12 +2758,21 @@ function formatNoticeDate(ts) {
 
 async function deleteNotice(id) {
   if (!isAdmin()) return;
-  try {
-    if (!demoMode && db) await set(dbRef(db, 'notices/'+id), null);
-    delete noticesData[id];
-    renderNotices();
-    showToast('공지사항이 삭제됐어요.');
-  } catch(e) { showToast('삭제에 실패했어요.'); }
+  // Optimistic: remove locally first so UI always updates
+  delete noticesData[id];
+  renderNotices();
+  if (!demoMode && db) {
+    try {
+      await remove(dbRef(db, 'notices/'+id));
+    } catch(e) {
+      console.error('Notice delete failed:', e);
+      // Reload from server to restore correct state
+      await loadNotices();
+      showToast('삭제에 실패했어요. (' + (e.code || e.message) + ')');
+      return;
+    }
+  }
+  showToast('공지사항이 삭제됐어요.');
 }
 
 // Image resize
