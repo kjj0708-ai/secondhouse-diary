@@ -1287,160 +1287,194 @@
     /* ═══════════════════════════════════════
        NOTICE BOARD
     ═══════════════════════════════════════ */
-    .notice-container {
-      padding: 16px;
-      padding-bottom: 80px;
-    }
+    /* ═══ NOTICE BOARD ═══ */
+    .notice-container { padding: 16px; padding-bottom: 80px; }
     .notice-card {
       background: var(--surface);
       border: 1.5px solid var(--border2);
       border-radius: var(--r-md);
-      padding: 16px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       box-shadow: var(--shadow-sm);
+      overflow: hidden;
     }
-    .notice-card.pinned {
-      border-color: var(--primary-light);
-      background: var(--primary-ultra);
-    }
+    .notice-card.pinned { border-color: var(--primary-light); }
     .notice-card-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 16px;
+      cursor: pointer;
+      user-select: none;
     }
+    .notice-card-header:active { background: var(--surface2); }
     .notice-pin-badge {
-      font-size: 10px;
-      font-weight: 700;
-      background: var(--primary);
-      color: #fff;
-      border-radius: var(--r-full);
-      padding: 2px 7px;
+      font-size: 10px; font-weight: 700;
+      background: var(--primary); color: #fff;
+      border-radius: var(--r-full); padding: 2px 7px;
+      flex-shrink: 0;
     }
     .notice-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text);
-      flex: 1;
+      font-size: 14px; font-weight: 600;
+      color: var(--text); flex: 1; line-height: 1.4;
     }
+    .notice-date-inline {
+      font-size: 11px; color: var(--text3); flex-shrink: 0;
+    }
+    .notice-chevron {
+      width: 16px; height: 16px; flex-shrink: 0;
+      color: var(--text3); transition: transform .2s;
+    }
+    .notice-card.open .notice-chevron { transform: rotate(180deg); }
+    .notice-body-wrap {
+      display: none;
+      padding: 0 16px 16px;
+      border-top: 1px solid var(--border2);
+    }
+    .notice-card.open .notice-body-wrap { display: block; }
     .notice-body {
-      font-size: 14px;
-      color: var(--text2);
-      line-height: 1.6;
-      white-space: pre-line;
-      margin-bottom: 10px;
+      font-size: 14px; color: var(--text2);
+      line-height: 1.7; white-space: pre-line;
+      padding-top: 12px;
     }
-    .notice-meta {
-      font-size: 11px;
-      color: var(--text3);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .notice-images {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin-top: 12px;
     }
-    .notice-delete-btn {
-      font-size: 11px;
-      color: var(--red);
-      background: none;
-      border: none;
+    .notice-img {
+      width: 100%; max-width: 100%;
+      border-radius: var(--r-sm);
+      object-fit: cover;
       cursor: pointer;
-      padding: 2px 6px;
-      border-radius: 4px;
     }
-    .notice-delete-btn:active { background: var(--red-bg); }
+    .notice-admin-btns {
+      display: flex; gap: 8px;
+      margin-top: 12px; padding-top: 10px;
+      border-top: 1px solid var(--border2);
+    }
+    .btn-notice-edit {
+      flex: 1; padding: 8px;
+      border: 1.5px solid var(--primary-light);
+      border-radius: var(--r-sm);
+      background: var(--surface); color: var(--primary);
+      font-size: 13px; font-weight: 600; font-family: var(--font-body);
+      cursor: pointer;
+    }
+    .btn-notice-del {
+      flex: 1; padding: 8px;
+      border: 1.5px solid var(--red);
+      border-radius: var(--r-sm);
+      background: var(--surface); color: var(--red);
+      font-size: 13px; font-weight: 600; font-family: var(--font-body);
+      cursor: pointer;
+    }
+    .notice-del-confirm {
+      display: none; margin-top: 8px;
+      background: var(--red-bg); border-radius: var(--r-sm);
+      padding: 10px 12px;
+      font-size: 13px; color: var(--red);
+    }
+    .notice-del-confirm.show { display: flex; align-items: center; gap: 10px; }
+    .notice-del-confirm span { flex: 1; }
+    .btn-del-yes {
+      background: var(--red); color: #fff;
+      border: none; border-radius: 6px;
+      padding: 5px 12px; font-size: 13px; cursor: pointer; font-family: var(--font-body);
+    }
+    .btn-del-no {
+      background: none; color: var(--text2);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 5px 12px; font-size: 13px; cursor: pointer; font-family: var(--font-body);
+    }
 
     .btn-write-notice {
-      position: fixed;
-      bottom: calc(var(--tabbar-h) + 16px);
-      right: 16px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: var(--r-full);
-      padding: 13px 20px;
-      font-size: 14px;
-      font-weight: 700;
-      font-family: var(--font-body);
-      box-shadow: var(--shadow-md);
-      cursor: pointer;
-      z-index: 100;
+      position: fixed; bottom: calc(var(--tabbar-h) + 16px); right: 16px;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: var(--r-full);
+      padding: 13px 20px; font-size: 14px; font-weight: 700;
+      font-family: var(--font-body); box-shadow: var(--shadow-md);
+      cursor: pointer; z-index: 100;
     }
     .btn-write-notice:active { opacity: .85; }
 
-    /* Notice Write Modal */
+    /* Notice Modal */
     .notice-modal-overlay {
       position: fixed; inset: 0;
       background: rgba(0,0,0,.5);
-      z-index: 500;
-      display: flex; align-items: flex-end;
+      z-index: 500; display: flex; align-items: flex-end;
     }
     .notice-modal-overlay.hidden { display: none; }
     .notice-modal {
-      background: var(--surface);
-      border-radius: 24px 24px 0 0;
-      padding: 24px 20px 32px;
-      width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
+      background: var(--surface); border-radius: 24px 24px 0 0;
+      padding: 24px 20px 32px; width: 100%;
+      max-height: 90vh; overflow-y: auto;
     }
     .notice-modal-title {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 16px;
+      font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 16px;
     }
     .notice-input {
-      width: 100%;
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-sm);
-      padding: 12px;
-      font-size: 14px;
-      font-family: var(--font-body);
-      color: var(--text);
-      background: var(--surface);
-      margin-bottom: 10px;
-      box-sizing: border-box;
+      width: 100%; border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); padding: 12px;
+      font-size: 14px; font-family: var(--font-body);
+      color: var(--text); background: var(--surface);
+      margin-bottom: 10px; box-sizing: border-box;
     }
     .notice-input:focus { outline: none; border-color: var(--primary); }
-    .notice-textarea {
-      resize: vertical;
-      min-height: 120px;
+    .notice-textarea { resize: vertical; min-height: 120px; }
+    .notice-img-upload-label {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--r-sm); cursor: pointer;
+      font-size: 13px; color: var(--text2);
+      margin-bottom: 10px;
+    }
+    .notice-img-upload-label:active { background: var(--surface2); }
+    .notice-img-previews {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
+    }
+    .notice-img-preview-wrap {
+      position: relative; width: 80px; height: 80px;
+    }
+    .notice-img-preview-wrap img {
+      width: 80px; height: 80px; object-fit: cover; border-radius: 8px;
+    }
+    .notice-img-remove {
+      position: absolute; top: -6px; right: -6px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--red); color: #fff;
+      border: none; font-size: 12px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
     }
     .notice-pin-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 14px;
-      font-size: 14px;
-      color: var(--text2);
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 14px; font-size: 14px; color: var(--text2);
     }
-    .notice-modal-btns {
-      display: flex;
-      gap: 10px;
-    }
+    .notice-modal-btns { display: flex; gap: 10px; }
     .btn-notice-cancel {
-      flex: 1;
-      padding: 13px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-sm);
-      background: var(--surface);
-      font-size: 15px;
-      font-family: var(--font-body);
-      cursor: pointer;
-      color: var(--text2);
+      flex: 1; padding: 13px;
+      border: 1.5px solid var(--border); border-radius: var(--r-sm);
+      background: var(--surface); font-size: 15px;
+      font-family: var(--font-body); cursor: pointer; color: var(--text2);
     }
     .btn-notice-submit {
-      flex: 2;
-      padding: 13px;
-      border: none;
-      border-radius: var(--r-sm);
-      background: var(--primary);
-      color: #fff;
-      font-size: 15px;
-      font-weight: 700;
-      font-family: var(--font-body);
-      cursor: pointer;
+      flex: 2; padding: 13px; border: none;
+      border-radius: var(--r-sm); background: var(--primary);
+      color: #fff; font-size: 15px; font-weight: 700;
+      font-family: var(--font-body); cursor: pointer;
     }
     .btn-notice-submit:active { opacity: .85; }
+
+    /* Image lightbox */
+    .img-lightbox {
+      position: fixed; inset: 0; background: rgba(0,0,0,.9);
+      z-index: 900; display: flex; align-items: center; justify-content: center;
+    }
+    .img-lightbox.hidden { display: none; }
+    .img-lightbox img { max-width: 95vw; max-height: 90vh; border-radius: 8px; }
+    .img-lightbox-close {
+      position: absolute; top: 16px; right: 16px;
+      background: rgba(255,255,255,.2); border: none;
+      color: #fff; font-size: 22px; width: 40px; height: 40px;
+      border-radius: 50%; cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -2672,59 +2706,128 @@ function renderNotices() {
   const list = document.getElementById('notice-list');
   const empty = document.getElementById('notice-empty');
   const writeBtn = document.getElementById('btn-write-notice');
-
   if (writeBtn) writeBtn.style.display = isAdmin() ? 'block' : 'none';
 
   const entries = Object.entries(noticesData)
-    .sort(([,a],[,b]) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || b.createdAt - a.createdAt);
+    .sort(([,a],[,b]) => (b.pinned?1:0)-(a.pinned?1:0) || b.createdAt-a.createdAt);
 
-  if (entries.length === 0) {
-    empty.style.display = 'block';
-    list.innerHTML = '';
-    return;
-  }
+  if (entries.length === 0) { empty.style.display='block'; list.innerHTML=''; return; }
   empty.style.display = 'none';
 
   list.innerHTML = entries.map(([id, n]) => `
-    <div class="notice-card${n.pinned ? ' pinned' : ''}">
-      <div class="notice-card-header">
-        ${n.pinned ? '<span class="notice-pin-badge">📌 고정</span>' : ''}
+    <div class="notice-card${n.pinned?' pinned':''}" id="nc-${id}">
+      <div class="notice-card-header" onclick="toggleNotice('${id}')">
+        ${n.pinned?'<span class="notice-pin-badge">📌 고정</span>':''}
         <div class="notice-title">${escapeHtml(n.title)}</div>
+        <span class="notice-date-inline">${formatNoticeDate(n.createdAt)}</span>
+        <svg class="notice-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-      <div class="notice-body">${escapeHtml(n.body)}</div>
-      <div class="notice-meta">
-        <span>${formatNoticeDate(n.createdAt)}</span>
-        ${isAdmin() ? `<button class="notice-delete-btn" onclick="deleteNotice('${id}')">삭제</button>` : ''}
+      <div class="notice-body-wrap">
+        <div class="notice-body">${escapeHtml(n.body)}</div>
+        ${(n.images||[]).length ? `<div class="notice-images">${(n.images||[]).map((src,i)=>`<img class="notice-img" src="${src}" onclick="openLightbox('${id}',${i})" />`).join('')}</div>` : ''}
+        ${isAdmin() ? `
+        <div class="notice-admin-btns">
+          <button class="btn-notice-edit" onclick="openEditNotice('${id}')">✏️ 수정</button>
+          <button class="btn-notice-del" onclick="showDelConfirm('${id}')">🗑 삭제</button>
+        </div>
+        <div class="notice-del-confirm" id="del-confirm-${id}">
+          <span>정말 삭제할까요?</span>
+          <button class="btn-del-no" onclick="hideDelConfirm('${id}')">취소</button>
+          <button class="btn-del-yes" onclick="deleteNotice('${id}')">삭제</button>
+        </div>` : ''}
       </div>
     </div>
   `).join('');
 }
 
+function toggleNotice(id) {
+  const card = document.getElementById('nc-'+id);
+  if (card) card.classList.toggle('open');
+}
+function showDelConfirm(id) { document.getElementById('del-confirm-'+id)?.classList.add('show'); }
+function hideDelConfirm(id) { document.getElementById('del-confirm-'+id)?.classList.remove('show'); }
+
 function escapeHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 function formatNoticeDate(ts) {
-  const d = new Date(ts);
+  const d=new Date(ts);
   return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
 }
 
 async function deleteNotice(id) {
   if (!isAdmin()) return;
-  if (!confirm('공지사항을 삭제할까요?')) return;
-  delete noticesData[id];
-  await dbSet('notices', noticesData);
-  renderNotices();
-  showToast('공지사항이 삭제됐어요.');
+  try {
+    if (!demoMode && db) await set(dbRef(db, 'notices/'+id), null);
+    delete noticesData[id];
+    renderNotices();
+    showToast('공지사항이 삭제됐어요.');
+  } catch(e) { showToast('삭제에 실패했어요.'); }
 }
 
-// Write modal
-document.getElementById('btn-write-notice').addEventListener('click', () => {
-  document.getElementById('notice-title-input').value = '';
-  document.getElementById('notice-body-input').value = '';
-  document.getElementById('notice-pin-check').checked = false;
+// Image resize
+function resizeImage(file, maxW=1200) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.75));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Modal state
+let editingNoticeId = null;
+let pendingImages = []; // base64 strings
+
+function openNoticeModal(noticeId) {
+  editingNoticeId = noticeId || null;
+  pendingImages = [];
+  const n = noticeId ? noticesData[noticeId] : null;
+  document.getElementById('notice-modal-title').textContent = noticeId ? '공지사항 수정' : '공지사항 작성';
+  document.getElementById('notice-title-input').value = n ? n.title : '';
+  document.getElementById('notice-body-input').value = n ? n.body : '';
+  document.getElementById('notice-pin-check').checked = n ? !!n.pinned : false;
+  document.getElementById('btn-notice-submit').textContent = noticeId ? '수정 완료' : '등록';
+  if (n && n.images) pendingImages = [...n.images];
+  renderImgPreviews();
   document.getElementById('notice-modal-overlay').classList.remove('hidden');
+}
+
+function openEditNotice(id) { openNoticeModal(id); }
+
+function renderImgPreviews() {
+  const wrap = document.getElementById('notice-img-previews');
+  wrap.innerHTML = pendingImages.map((src,i) => `
+    <div class="notice-img-preview-wrap">
+      <img src="${src}" />
+      <button class="notice-img-remove" onclick="removeImg(${i})">✕</button>
+    </div>
+  `).join('');
+}
+function removeImg(i) { pendingImages.splice(i,1); renderImgPreviews(); }
+
+document.getElementById('notice-img-input').addEventListener('change', async e => {
+  const files = Array.from(e.target.files).slice(0, 3 - pendingImages.length);
+  for (const f of files) {
+    if (pendingImages.length >= 3) break;
+    const b64 = await resizeImage(f);
+    pendingImages.push(b64);
+  }
+  renderImgPreviews();
+  e.target.value = '';
 });
+
+document.getElementById('btn-write-notice').addEventListener('click', () => openNoticeModal(null));
 document.getElementById('btn-notice-cancel').addEventListener('click', () => {
   document.getElementById('notice-modal-overlay').classList.add('hidden');
 });
@@ -2734,12 +2837,30 @@ document.getElementById('btn-notice-submit').addEventListener('click', async () 
   const pinned = document.getElementById('notice-pin-check').checked;
   if (!title) { showToast('제목을 입력해 주세요.'); return; }
   if (!body) { showToast('내용을 입력해 주세요.'); return; }
-  const id = 'notice_' + Date.now();
-  noticesData[id] = { title, body, pinned, createdAt: Date.now() };
-  await dbSet('notices', noticesData);
-  document.getElementById('notice-modal-overlay').classList.add('hidden');
-  renderNotices();
-  showToast('공지사항이 등록됐어요! 📢');
+  const id = editingNoticeId || ('notice_' + Date.now());
+  const createdAt = editingNoticeId ? (noticesData[id]?.createdAt || Date.now()) : Date.now();
+  const notice = { title, body, pinned, createdAt, images: pendingImages };
+  try {
+    if (!demoMode && db) await set(dbRef(db, 'notices/'+id), notice);
+    noticesData[id] = notice;
+    document.getElementById('notice-modal-overlay').classList.add('hidden');
+    renderNotices();
+    showToast(editingNoticeId ? '공지사항이 수정됐어요.' : '공지사항이 등록됐어요! 📢');
+  } catch(e) { showToast('저장에 실패했어요.'); }
+});
+
+// Lightbox
+const lightboxData = {};
+function openLightbox(noticeId, idx) {
+  const imgs = noticesData[noticeId]?.images || [];
+  document.getElementById('img-lightbox-img').src = imgs[idx] || '';
+  document.getElementById('img-lightbox').classList.remove('hidden');
+}
+document.getElementById('img-lightbox-close').addEventListener('click', () => {
+  document.getElementById('img-lightbox').classList.add('hidden');
+});
+document.getElementById('img-lightbox').addEventListener('click', e => {
+  if (e.target === e.currentTarget) document.getElementById('img-lightbox').classList.add('hidden');
 });
 
 // ─────────────────────────────────────────────
@@ -2750,12 +2871,18 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-<!-- Notice Write Modal -->
+<!-- Notice Write/Edit Modal -->
 <div class="notice-modal-overlay hidden" id="notice-modal-overlay">
   <div class="notice-modal">
-    <div class="notice-modal-title">공지사항 작성</div>
+    <div class="notice-modal-title" id="notice-modal-title">공지사항 작성</div>
     <input class="notice-input" id="notice-title-input" placeholder="제목" maxlength="100" />
     <textarea class="notice-input notice-textarea" id="notice-body-input" placeholder="내용을 입력하세요"></textarea>
+    <label class="notice-img-upload-label" for="notice-img-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      이미지 추가 (최대 3장, 자동 리사이징)
+    </label>
+    <input type="file" id="notice-img-input" accept="image/*" multiple style="display:none" />
+    <div class="notice-img-previews" id="notice-img-previews"></div>
     <div class="notice-pin-row">
       <input type="checkbox" id="notice-pin-check" />
       <label for="notice-pin-check">상단 고정</label>
@@ -2765,6 +2892,12 @@ if ('serviceWorker' in navigator) {
       <button class="btn-notice-submit" id="btn-notice-submit">등록</button>
     </div>
   </div>
+</div>
+
+<!-- Image Lightbox -->
+<div class="img-lightbox hidden" id="img-lightbox">
+  <button class="img-lightbox-close" id="img-lightbox-close">✕</button>
+  <img id="img-lightbox-img" src="" alt="" />
 </div>
 </body>
 </html>
