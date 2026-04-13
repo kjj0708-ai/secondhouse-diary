@@ -1472,7 +1472,7 @@ try {
 }
 
 let app, auth, db;
-let initializeApp, getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged;
+let initializeApp, getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged;
 let getDatabase, dbRef, set, get, child;
 
 function isPlaceholderConfig(cfg) {
@@ -1483,7 +1483,7 @@ const demoMode = !firebaseConfig || isPlaceholderConfig(firebaseConfig);
 if (!demoMode) {
   try {
     ({ initializeApp } = await import(FB_BASE + 'firebase-app.js'));
-    ({ getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } =
+    ({ getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } =
       await import(FB_BASE + 'firebase-auth.js'));
     ({ getDatabase, ref: dbRef, set, get, child } =
       await import(FB_BASE + 'firebase-database.js'));
@@ -1687,23 +1687,17 @@ document.getElementById('btn-google-login').addEventListener('click', async () =
 
   try {
     const provider = new GoogleAuthProvider();
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile) {
-      await signInWithRedirect(auth, provider);
-    } else {
-      try {
-        const result = await signInWithPopup(auth, provider);
-        await onUserReady(result.user);
-      } catch (popupErr) {
-        if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request') {
-          await signInWithRedirect(auth, provider);
-        } else if (popupErr.code !== 'auth/popup-closed-by-user') {
-          showToast('로그인에 실패했습니다.');
-        }
-      }
-    }
+    const result = await signInWithPopup(auth, provider);
+    await onUserReady(result.user);
   } catch (err) {
-    showToast('로그인에 실패했습니다.');
+    if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') return;
+    if (err.code === 'auth/popup-blocked') {
+      showToast('팝업이 차단됐어요. 브라우저 설정에서 팝업을 허용해 주세요.');
+    } else if (err.code === 'auth/operation-not-supported-in-this-environment') {
+      showToast('이 브라우저에서는 로그인이 지원되지 않아요. Chrome 브라우저를 이용해 주세요.');
+    } else {
+      showToast('로그인에 실패했습니다. 다시 시도해 주세요.');
+    }
   }
 });
 
@@ -2474,11 +2468,6 @@ function downloadBlob(blob, filename) {
 //  Firebase Auth State Listener
 // ─────────────────────────────────────────────
 if (!demoMode && auth) {
-  // 리다이렉트 로그인 결과 처리
-  getRedirectResult(auth).then(async result => {
-    if (result && result.user) await onUserReady(result.user);
-  }).catch(() => {});
-
   onAuthStateChanged(auth, async user => {
     if (user) await onUserReady(user);
     else showScreen('login-screen');
