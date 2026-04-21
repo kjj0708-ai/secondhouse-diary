@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <title>세컨하우스 다이어리</title>
 
   <style>
@@ -49,7 +49,7 @@
       --r-lg:  18px;
       --r-xl:  24px;
       --r-full: 999px;
-      --font-display: 'DM Serif Display', serif;
+      --font-display: 'Noto Sans KR', sans-serif;
       --font-body:    'Noto Sans KR', sans-serif;
       --header-h: 56px;
       --tabbar-h: 50px;
@@ -415,10 +415,11 @@
     /* Tab bar */
     .tab-bar {
       display: flex;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border2);
+      background: var(--primary);
+      border-bottom: none;
       height: var(--tabbar-h);
       flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(30,92,58,.25);
     }
     .tab-btn {
       flex: 1;
@@ -426,21 +427,21 @@
       background: none;
       border: none;
       font-family: var(--font-body);
-      font-size: 13px; font-weight: 500;
-      color: var(--text3);
+      font-size: 12px; font-weight: 500;
+      color: rgba(255,255,255,.6);
       cursor: pointer;
       position: relative;
       transition: color .15s;
       display: flex; align-items: center; justify-content: center;
-      gap: 5px;
+      gap: 4px;
     }
-    .tab-btn.active { color: var(--primary); font-weight: 700; }
+    .tab-btn.active { color: #fff; font-weight: 700; }
     .tab-btn.active::after {
       content: '';
       position: absolute;
-      bottom: 0; left: 20%; right: 20%;
-      height: 2.5px;
-      background: var(--primary);
+      bottom: 0; left: 15%; right: 15%;
+      height: 3px;
+      background: rgba(255,255,255,.9);
       border-radius: 2px 2px 0 0;
     }
 
@@ -722,9 +723,9 @@
     .bar-chart {
       display: flex;
       align-items: flex-end;
-      gap: 4px;
-      height: 100px;
-      padding-bottom: 20px;
+      gap: 3px;
+      height: 130px;
+      padding-bottom: 22px;
       position: relative;
     }
     .bar-col {
@@ -736,25 +737,46 @@
       height: 100%;
       position: relative;
     }
-    .bar-fill-wrap {
-      width: 100%;
-      flex: 1;
+    .bar-pair {
       display: flex;
       align-items: flex-end;
+      gap: 1px;
+      width: 100%;
+      flex: 1;
+    }
+    .bar-fill-wrap {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      position: relative;
     }
     .bar-fill {
       width: 100%;
-      background: var(--primary-pale);
-      border-radius: 4px 4px 0 0;
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-border);
+      border-radius: 3px 3px 0 0;
       transition: height .3s ease;
       min-height: 3px;
-      border: 1px solid var(--border);
       border-bottom: none;
     }
-    .bar-fill.current-month {
-      background: var(--primary);
-      border-color: var(--primary-mid);
+    .bar-fill.income-bar {
+      background: var(--primary-pale);
+      border-color: var(--primary-light);
     }
+    .bar-fill.current-month { background: var(--amber); border-color: var(--amber); }
+    .bar-fill.income-bar.current-month { background: var(--primary); border-color: var(--primary-mid); }
+    .bar-num {
+      font-size: 8px;
+      font-weight: 700;
+      white-space: nowrap;
+      margin-bottom: 1px;
+      line-height: 1;
+    }
+    .bar-num.expense-num { color: var(--amber); }
+    .bar-num.income-num { color: var(--primary); }
     .bar-label {
       position: absolute;
       bottom: -18px;
@@ -762,6 +784,23 @@
       color: var(--text3);
       font-weight: 600;
     }
+    .bar-chart-legend {
+      display: flex; gap: 12px; justify-content: center;
+      margin-top: 24px; margin-bottom: 4px;
+      font-size: 11px; color: var(--text2);
+    }
+    .bar-chart-legend span { display: flex; align-items: center; gap: 4px; }
+    .bar-chart-legend .dot {
+      width: 10px; height: 10px; border-radius: 2px; display: inline-block;
+    }
+
+    /* Auto-link styles */
+    .auto-link {
+      color: var(--blue);
+      text-decoration: underline;
+      word-break: break-all;
+    }
+    .auto-link:visited { color: var(--blue); }
 
     /* ═══════════════════════════════════════
        MODAL
@@ -1475,6 +1514,246 @@
       color: #fff; font-size: 22px; width: 40px; height: 40px;
       border-radius: 50%; cursor: pointer;
     }
+
+    /* ═══════════════════════════════════════
+       TAG FILTER BAR (Calendar)
+    ═══════════════════════════════════════ */
+    .tag-filter-bar {
+      display: flex; gap: 8px; padding: 10px 14px 4px;
+      overflow-x: auto; flex-shrink: 0;
+      scrollbar-width: none;
+    }
+    .tag-filter-bar::-webkit-scrollbar { display: none; }
+    .tag-filter-chip {
+      flex-shrink: 0; padding: 5px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-full);
+      background: var(--surface); font-size: 12px; font-weight: 500;
+      color: var(--text2); cursor: pointer; transition: all .15s;
+      font-family: var(--font-body);
+    }
+    .tag-filter-chip.active {
+      border-color: var(--primary); background: var(--primary);
+      color: #fff;
+    }
+    .cal-cell.filtered-out {
+      opacity: .3; pointer-events: none;
+    }
+
+    /* Tag memo fields */
+    .tag-memo-container { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .tag-memo-hint { font-size: 12px; color: var(--text3); padding: 6px 0; }
+    .tag-memo-row { display: flex; flex-direction: column; gap: 4px; }
+    .tag-memo-label {
+      font-size: 12px; font-weight: 700; color: var(--primary);
+      padding: 4px 8px; background: var(--primary-pale);
+      border-radius: var(--r-xs); display: inline-block;
+    }
+    .tag-memo-textarea {
+      width: 100%; border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); padding: 8px 10px;
+      font-size: 13px; font-family: var(--font-body); color: var(--text);
+      background: var(--surface); resize: none; min-height: 64px;
+    }
+    .tag-memo-textarea:focus { outline: none; border-color: var(--primary); }
+
+    /* ═══════════════════════════════════════
+       INCOME in ENTRY MODAL
+    ═══════════════════════════════════════ */
+    .income-row { background: var(--primary-ultra); }
+    .income-row .expense-select { background: var(--primary-pale); color: var(--primary); }
+
+    /* ═══════════════════════════════════════
+       SEARCH OVERLAY
+    ═══════════════════════════════════════ */
+    .search-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 600; display: flex; align-items: flex-start; justify-content: center;
+      padding-top: 60px;
+    }
+    .search-overlay.hidden { display: none; }
+    .search-box {
+      width: calc(100% - 32px); max-width: 480px;
+      background: var(--surface); border-radius: var(--r-lg);
+      box-shadow: var(--shadow-lg); overflow: hidden;
+    }
+    .search-input-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-bottom: 1px solid var(--border2);
+    }
+    .search-input-row svg { color: var(--text3); flex-shrink: 0; }
+    .search-input {
+      flex: 1; border: none; outline: none;
+      font-size: 15px; font-family: var(--font-body); color: var(--text);
+      background: transparent;
+    }
+    .search-close-btn {
+      border: none; background: none; font-size: 16px; color: var(--text3);
+      cursor: pointer; padding: 4px;
+    }
+    #search-results { max-height: 55vh; overflow-y: auto; }
+    .search-result-item {
+      padding: 12px 16px; border-bottom: 1px solid var(--border2);
+      cursor: pointer; transition: background .15s;
+    }
+    .search-result-item:last-child { border-bottom: none; }
+    .search-result-item:active { background: var(--surface2); }
+    .search-result-date { font-size: 12px; color: var(--primary); font-weight: 700; }
+    .search-result-body { font-size: 13px; color: var(--text2); margin-top: 2px; }
+    .search-no-result { padding: 24px 16px; text-align: center; color: var(--text3); font-size: 14px; }
+
+    /* ═══════════════════════════════════════
+       FARMING TAB
+    ═══════════════════════════════════════ */
+    .farming-container { padding: 14px; }
+    .farming-region-bar {
+      display: flex; gap: 8px; margin-bottom: 14px;
+    }
+    .region-btn {
+      flex: 1; padding: 9px 0; border-radius: var(--r-sm);
+      border: 1.5px solid var(--border); background: var(--surface);
+      font-size: 14px; font-weight: 600; color: var(--text2);
+      cursor: pointer; font-family: var(--font-body); transition: all .15s;
+    }
+    .region-btn.active {
+      border-color: var(--primary); background: var(--primary); color: #fff;
+    }
+    .farming-month-card {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: var(--r-md); padding: 14px; margin-bottom: 10px;
+    }
+    .farming-month-title {
+      font-size: 15px; font-weight: 700; color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .farming-items { display: flex; flex-direction: column; gap: 5px; }
+    .farming-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 13px; color: var(--text2); line-height: 1.5;
+    }
+    .farming-item-badge {
+      flex-shrink: 0; font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: var(--r-full);
+      background: var(--primary-pale); color: var(--primary);
+    }
+    .farming-item-badge.harvest { background: #fef3e2; color: #c47a12; }
+    .farming-item-badge.sow { background: #e6f4ec; color: var(--primary); }
+    .farming-item-badge.plant { background: #e8f4ff; color: #1a6fa8; }
+    .farming-item-badge.manage { background: #f3f0fb; color: #7c3aed; }
+
+    /* ═══════════════════════════════════════
+       ANNUAL ACTIVITY TAB
+    ═══════════════════════════════════════ */
+    .annual-act-container { padding: 14px; }
+    .annual-act-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .annual-tag-select {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
+    }
+    .annual-tag-chip {
+      padding: 5px 12px; border: 1.5px solid var(--border);
+      border-radius: var(--r-full); font-size: 12px; font-weight: 500;
+      color: var(--text2); cursor: pointer; background: var(--surface);
+      font-family: var(--font-body); transition: all .15s;
+    }
+    .annual-tag-chip.active {
+      border-color: var(--primary); background: var(--primary); color: #fff;
+    }
+    .annual-act-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .annual-month-card {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: var(--r-md); padding: 10px;
+      min-height: 60px;
+    }
+    .annual-month-name {
+      font-size: 12px; font-weight: 700; color: var(--primary);
+      margin-bottom: 5px;
+    }
+    .annual-month-entry {
+      font-size: 11px; color: var(--text2); line-height: 1.5;
+      padding: 2px 0; border-bottom: 1px solid var(--border2);
+    }
+    .annual-month-entry:last-child { border-bottom: none; }
+    .annual-month-empty {
+      font-size: 11px; color: var(--text3);
+    }
+
+    /* ═══════════════════════════════════════
+       BOARD / NOTICE TAB
+    ═══════════════════════════════════════ */
+    .board-subtab-bar {
+      display: flex; background: var(--surface);
+      border-bottom: 1px solid var(--border2);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .board-subtab-btn {
+      flex: 1; padding: 12px 8px; border: none; background: none;
+      font-size: 13px; font-weight: 600; color: var(--text3);
+      cursor: pointer; font-family: var(--font-body);
+      border-bottom: 2.5px solid transparent; transition: all .15s;
+    }
+    .board-subtab-btn.active {
+      color: var(--primary); border-bottom-color: var(--primary);
+    }
+
+    /* ═══════════════════════════════════════
+       REVIEWS
+    ═══════════════════════════════════════ */
+    .review-write-area {
+      padding: 14px; border-bottom: 1px solid var(--border2);
+    }
+    .btn-write-review {
+      width: 100%; padding: 12px;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: var(--r-md);
+      font-size: 14px; font-weight: 700; font-family: var(--font-body);
+      cursor: pointer;
+    }
+    .btn-write-review:active { opacity: .85; }
+    .review-card {
+      padding: 14px 16px; border-bottom: 1px solid var(--border2);
+      background: var(--surface);
+    }
+    .review-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .review-author { font-size: 13px; font-weight: 700; color: var(--text); }
+    .review-stars { color: #f59e0b; font-size: 15px; letter-spacing: 1px; }
+    .review-body { font-size: 13px; color: var(--text2); line-height: 1.6; }
+    .review-date { font-size: 11px; color: var(--text3); margin-top: 4px; }
+    .review-del-btn {
+      font-size: 11px; color: var(--red); background: none; border: none;
+      cursor: pointer; padding: 2px 6px;
+    }
+    .star-rating-input {
+      display: flex; gap: 8px; justify-content: center;
+      margin-bottom: 14px; font-size: 32px; color: #d1d5db;
+    }
+    .star-btn { cursor: pointer; transition: color .1s; user-select: none; }
+    .star-btn.selected, .star-btn.hover { color: #f59e0b; }
+
+    /* ═══════════════════════════════════════
+       INCOME IN ANALYSIS TAB
+    ═══════════════════════════════════════ */
+    .income-expense-row {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;
+    }
+    .income-expense-row .ie-card { min-width: calc(33% - 8px); flex: 1; }
+    .ie-card {
+      flex: 1; background: var(--surface); border-radius: var(--r-md);
+      padding: 12px 14px; border: 1.5px solid var(--border2);
+    }
+    .ie-card.income { border-color: #a3e4b7; }
+    .ie-card.expense { border-color: var(--amber-border); }
+    .ie-card-label { font-size: 11px; color: var(--text3); font-weight: 600; }
+    .ie-card-value { font-size: 20px; font-weight: 700; margin-top: 4px; }
+    .ie-card.income .ie-card-value { color: var(--primary); }
+    .ie-card.expense .ie-card-value { color: var(--amber); }
   </style>
 </head>
 <body>
@@ -1550,6 +1829,9 @@
       </div>
       <div class="header-title">세컨하우스 다이어리</div>
     </div>
+    <button class="btn-settings" id="btn-open-search" title="검색" style="margin-right:6px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>
     <button class="btn-settings" id="btn-open-settings" title="설정">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
         <circle cx="12" cy="12" r="3"/>
@@ -1560,22 +1842,31 @@
 
   <nav class="tab-bar">
     <button class="tab-btn active" data-tab="calendar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      캘린더
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      달력
     </button>
     <button class="tab-btn" data-tab="expense">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      지출분석
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      가계부
+    </button>
+    <button class="tab-btn" data-tab="farming">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2a10 10 0 000 20"/><path d="M12 2c0 0-4 4-4 10s4 10 4 10"/><path d="M2 12h20"/></svg>
+      영농
+    </button>
+    <button class="tab-btn" data-tab="annual">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      연간
     </button>
     <button class="tab-btn" data-tab="notice">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-      공지사항
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      게시판
     </button>
   </nav>
 
   <div class="tab-content">
     <!-- Calendar Tab -->
     <div id="tab-calendar" class="tab-pane active">
+      <div id="tag-filter-bar" class="tag-filter-bar"></div>
       <div class="calendar-container">
         <div class="month-nav">
           <button class="month-nav-btn" id="btn-prev-month">‹</button>
@@ -1601,22 +1892,64 @@
           <div class="donut-wrapper" id="donut-wrapper"></div>
         </div>
         <div class="chart-section">
-          <div class="chart-title">월별 지출</div>
+          <div class="chart-title">월별 수입 / 지출</div>
+          <div class="bar-chart-legend">
+            <span><span class="dot" style="background:var(--primary-light);"></span>수입</span>
+            <span><span class="dot" style="background:var(--amber-border);"></span>지출</span>
+          </div>
           <div class="bar-chart" id="bar-chart"></div>
         </div>
       </div>
     </div>
 
-    <!-- Notice Tab -->
-    <div id="tab-notice" class="tab-pane">
-      <div class="notice-container" id="notice-container">
-        <div class="notice-empty" id="notice-empty" style="display:none;">
-          <div style="font-size:40px;margin-bottom:12px;">📭</div>
-          <div style="color:var(--text2);font-size:14px;">등록된 공지사항이 없습니다</div>
+    <!-- Farming Tab -->
+    <div id="tab-farming" class="tab-pane">
+      <div class="farming-container">
+        <div class="farming-region-bar">
+          <button class="region-btn active" data-region="middle">중부지방</button>
+          <button class="region-btn" data-region="south">남부지방</button>
         </div>
-        <div id="notice-list"></div>
+        <div id="farming-calendar"></div>
       </div>
-      <button class="btn-write-notice" id="btn-write-notice" style="display:none;">＋ 공지 작성</button>
+    </div>
+
+    <!-- Annual Activity Tab -->
+    <div id="tab-annual" class="tab-pane">
+      <div class="annual-act-container">
+        <div class="annual-act-nav">
+          <button class="month-nav-btn" id="btn-annual-prev">‹</button>
+          <div class="year-label" id="annual-year-label"></div>
+          <button class="month-nav-btn" id="btn-annual-next">›</button>
+        </div>
+        <div class="annual-tag-select" id="annual-tag-select"></div>
+        <div id="annual-act-grid"></div>
+      </div>
+    </div>
+
+    <!-- Notice/Board Tab -->
+    <div id="tab-notice" class="tab-pane">
+      <div class="board-subtab-bar">
+        <button class="board-subtab-btn active" data-subtab="notice">📢 공지사항</button>
+        <button class="board-subtab-btn" data-subtab="review">⭐ 사용후기</button>
+      </div>
+      <div id="board-notice-panel">
+        <div class="notice-container" id="notice-container">
+          <div class="notice-empty" id="notice-empty" style="display:none;">
+            <div style="font-size:40px;margin-bottom:12px;">📭</div>
+            <div style="color:var(--text2);font-size:14px;">등록된 공지사항이 없습니다</div>
+          </div>
+          <div id="notice-list"></div>
+        </div>
+        <button class="btn-write-notice" id="btn-write-notice" style="display:none;">＋ 공지 작성</button>
+      </div>
+      <div id="board-review-panel" style="display:none;">
+        <div class="review-write-area" id="review-write-area"></div>
+        <div class="review-empty" id="review-empty" style="display:none;">
+          <div style="font-size:40px;margin-bottom:12px;">💬</div>
+          <div style="color:var(--text2);font-size:14px;">아직 후기가 없어요</div>
+        </div>
+        <div id="review-list"></div>
+      </div>
     </div>
   </div>
 
@@ -1703,12 +2036,23 @@ let currentUser   = null;
 let currentMonth  = new Date();
 let currentYear   = new Date().getFullYear();
 let allEntries    = {};
-let userSettings  = { customTags: getDefaultTags(), plan: 'free' };
+let userSettings  = { customTags: getDefaultTags(), plan: 'free', incomeCategories: ['농산물판매','시설임대료','기타'] };
 let selectedDate  = null;
 let entryData     = {};
 let deferredPrompt = null;
+let calTagFilter  = null;
+let currentAnnualYear = new Date().getFullYear();
+let annualActTag  = null;
+let boardSubTab   = 'notice';
+let farmingRegion = 'middle';
+let reviewsData   = {};
 
 const CATEGORIES = ['시설유지','농업','식비','기타'];
+
+function getEntryIncome(entry) {
+  if (!entry || !entry.incomes) return 0;
+  return entry.incomes.reduce((s, inc) => s + (Number(inc.amount) || 0), 0);
+}
 
 // ─────────────────────────────────────────────
 //  Default Tags
@@ -1832,6 +2176,8 @@ async function loadSettings() {
   if (data) {
     userSettings = { ...userSettings, ...data };
     if (!userSettings.customTags) userSettings.customTags = getDefaultTags();
+    if (!userSettings.incomeCategories) userSettings.incomeCategories = ['농산물판매','시설임대료','기타'];
+    // customFarming is loaded as-is (may be undefined)
   }
 }
 async function saveSettings() { await dbSet(`users/${uid()}/settings`, userSettings); }
@@ -1846,6 +2192,7 @@ async function onUserReady(user) {
   await loadSettings();
   await loadAllEntries();
   await loadNotices();
+  await loadReviews();
   const profile = await loadProfile();
   if (!profile || !profile.agreedAt) showScreen('consent-screen');
   else enterMainApp();
@@ -1942,7 +2289,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.add('active');
     document.getElementById('tab-' + tab).classList.add('active');
     if (tab === 'expense') renderExpenseTab();
-    if (tab === 'notice') loadNotices();
+    if (tab === 'notice') { loadNotices(); if (boardSubTab === 'review') loadReviews(); }
+    if (tab === 'farming') renderFarmingTab();
+    if (tab === 'annual') renderAnnualTab();
   });
 });
 
@@ -1961,7 +2310,29 @@ document.getElementById('btn-next-month').addEventListener('click', () => {
 // ─────────────────────────────────────────────
 //  Calendar Rendering
 // ─────────────────────────────────────────────
+function renderTagFilterBar() {
+  const bar = document.getElementById('tag-filter-bar');
+  if (!bar) return;
+  bar.innerHTML = '';
+  const allChip = document.createElement('button');
+  allChip.className = 'tag-filter-chip' + (calTagFilter === null ? ' active' : '');
+  allChip.textContent = '전체';
+  allChip.addEventListener('click', () => { calTagFilter = null; renderCalendar(); });
+  bar.appendChild(allChip);
+  userSettings.customTags.sort((a,b) => a.order - b.order).forEach(tag => {
+    const chip = document.createElement('button');
+    chip.className = 'tag-filter-chip' + (calTagFilter === tag.id ? ' active' : '');
+    chip.textContent = tag.emoji + ' ' + tag.label;
+    chip.addEventListener('click', () => {
+      calTagFilter = calTagFilter === tag.id ? null : tag.id;
+      renderCalendar();
+    });
+    bar.appendChild(chip);
+  });
+}
+
 function renderCalendar() {
+  renderTagFilterBar();
   const y = currentMonth.getFullYear();
   const m = currentMonth.getMonth();
   const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
@@ -2006,6 +2377,7 @@ function renderCalendar() {
     if (dayOfWeek === 0) cls += ' sun';
     if (dateStr === today) cls += ' today';
     if (visited) cls += ' visited';
+    if (calTagFilter && !(entry && entry.tags && entry.tags.includes(calTagFilter))) cls += ' filtered-out';
     cell.className = cls;
     cell.dataset.date = dateStr;
 
@@ -2030,7 +2402,7 @@ function renderCalendar() {
     if (entry && entry.memo) {
       const memoEl = document.createElement('div');
       memoEl.className = 'cal-memo';
-      memoEl.textContent = entry.memo;
+      memoEl.innerHTML = linkifyText(entry.memo);
       cell.appendChild(memoEl);
     }
 
@@ -2081,7 +2453,9 @@ function openEntryModal(dateStr) {
     weather: existing.weather || '',
     tags: existing.tags ? [...existing.tags] : [],
     memo: existing.memo || '',
+    tagMemos: existing.tagMemos ? {...existing.tagMemos} : {},
     expenses: existing.expenses ? JSON.parse(JSON.stringify(existing.expenses)) : [],
+    incomes: existing.incomes ? JSON.parse(JSON.stringify(existing.incomes)) : [],
   };
 
   const date = parseDate(dateStr);
@@ -2144,7 +2518,7 @@ function renderEntryModalBody() {
         .filter(t => (entry.tags||[]).includes(t.id))
         .map(t => t.emoji).join(' ');
       item.innerHTML = `<span class="lastyear-date">${d.getMonth()+1}/${d.getDate()}</span>
-        ${entry.visited ? '✅' : '❌'} ${tags} ${entry.memo ? '· ' + entry.memo.slice(0,30) : ''}`;
+        ${entry.visited ? '✅' : '❌'} ${tags} ${entry.memo ? '· ' + linkifyText(entry.memo.slice(0,60)) : ''}`;
       lySection.appendChild(item);
     });
   }
@@ -2191,12 +2565,41 @@ function renderEntryModalBody() {
   weatherSection.appendChild(weatherGroup);
   body.appendChild(weatherSection);
 
-  // 활동태그
+  // 활동태그 + 태그별 메모
   const tagSection = document.createElement('div');
   tagSection.className = 'entry-section';
-  tagSection.innerHTML = `<div class="entry-section-title">활동 태그</div>`;
+  tagSection.innerHTML = `<div class="entry-section-title">활동 태그 &amp; 내용</div>`;
   const tagsGroup = document.createElement('div');
   tagsGroup.className = 'tags-group';
+  const tagMemoContainer = document.createElement('div');
+  tagMemoContainer.className = 'tag-memo-container';
+
+  function refreshTagMemos() {
+    tagMemoContainer.innerHTML = '';
+    const selectedTags = userSettings.customTags
+      .filter(t => entryData.tags.includes(t.id))
+      .sort((a,b) => a.order - b.order);
+    if (selectedTags.length === 0) {
+      tagMemoContainer.innerHTML = '<div class="tag-memo-hint">태그를 선택하면 태그별 활동 내용을 입력할 수 있어요</div>';
+      return;
+    }
+    selectedTags.forEach(tag => {
+      const row = document.createElement('div');
+      row.className = 'tag-memo-row';
+      const lbl = document.createElement('div');
+      lbl.className = 'tag-memo-label';
+      lbl.textContent = tag.emoji + ' ' + tag.label;
+      const ta = document.createElement('textarea');
+      ta.className = 'tag-memo-textarea';
+      ta.placeholder = `${tag.label} 활동 내용...`;
+      ta.value = entryData.tagMemos[tag.id] || '';
+      ta.addEventListener('input', () => { entryData.tagMemos[tag.id] = ta.value; });
+      row.appendChild(lbl);
+      row.appendChild(ta);
+      tagMemoContainer.appendChild(row);
+    });
+  }
+
   userSettings.customTags.sort((a,b) => a.order - b.order).forEach(tag => {
     const btn = document.createElement('button');
     btn.className = 'tag-btn' + (entryData.tags.includes(tag.id) ? ' selected' : '');
@@ -2205,20 +2608,23 @@ function renderEntryModalBody() {
       const idx = entryData.tags.indexOf(tag.id);
       if (idx >= 0) { entryData.tags.splice(idx, 1); btn.classList.remove('selected'); }
       else { entryData.tags.push(tag.id); btn.classList.add('selected'); }
+      refreshTagMemos();
       updateAffiliateBanner();
     });
     tagsGroup.appendChild(btn);
   });
   tagSection.appendChild(tagsGroup);
+  tagSection.appendChild(tagMemoContainer);
+  refreshTagMemos();
   body.appendChild(tagSection);
 
-  // 활동메모
+  // 전체 메모 (태그 무관 일반 메모)
   const memoSection = document.createElement('div');
   memoSection.className = 'entry-section';
-  memoSection.innerHTML = `<div class="entry-section-title">활동 메모</div>`;
+  memoSection.innerHTML = `<div class="entry-section-title">전체 메모</div>`;
   const textarea = document.createElement('textarea');
   textarea.className = 'memo-textarea';
-  textarea.placeholder = '오늘의 활동을 기록해보세요...';
+  textarea.placeholder = '태그 외 전체 메모...';
   textarea.value = entryData.memo;
   textarea.addEventListener('input', () => { entryData.memo = textarea.value; });
   memoSection.appendChild(textarea);
@@ -2289,6 +2695,71 @@ function renderEntryModalBody() {
   expenseSection.appendChild(addExpBtn);
   body.appendChild(expenseSection);
 
+  // 수입내역
+  const incomeSection = document.createElement('div');
+  incomeSection.className = 'entry-section';
+  incomeSection.innerHTML = `<div class="entry-section-title">수입 내역</div>`;
+  const incomeList = document.createElement('div');
+  incomeList.className = 'expense-list';
+  incomeList.id = 'income-list';
+
+  function renderIncomeList() {
+    incomeList.innerHTML = '';
+    entryData.incomes.forEach((inc, idx) => {
+      const row = document.createElement('div');
+      row.className = 'expense-row income-row';
+
+      const nameInput = document.createElement('input');
+      nameInput.className = 'expense-input';
+      nameInput.type = 'text';
+      nameInput.placeholder = '항목명';
+      nameInput.value = inc.name || '';
+      nameInput.addEventListener('input', () => { entryData.incomes[idx].name = nameInput.value; });
+
+      const amountInput = document.createElement('input');
+      amountInput.className = 'expense-input';
+      amountInput.type = 'number';
+      amountInput.placeholder = '금액';
+      amountInput.min = '0';
+      amountInput.value = inc.amount || '';
+      amountInput.addEventListener('input', () => { entryData.incomes[idx].amount = Number(amountInput.value); });
+
+      const catSelect = document.createElement('select');
+      catSelect.className = 'expense-select';
+      (userSettings.incomeCategories || ['농산물판매','시설임대료','기타']).forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat; opt.textContent = cat;
+        if (inc.category === cat) opt.selected = true;
+        catSelect.appendChild(opt);
+      });
+      catSelect.addEventListener('change', () => { entryData.incomes[idx].category = catSelect.value; });
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn-delete-expense';
+      delBtn.textContent = '✕';
+      delBtn.addEventListener('click', () => { entryData.incomes.splice(idx, 1); renderIncomeList(); });
+
+      row.appendChild(nameInput);
+      row.appendChild(amountInput);
+      row.appendChild(catSelect);
+      row.appendChild(delBtn);
+      incomeList.appendChild(row);
+    });
+  }
+
+  renderIncomeList();
+  incomeSection.appendChild(incomeList);
+
+  const addIncBtn = document.createElement('button');
+  addIncBtn.className = 'btn-add-expense';
+  addIncBtn.textContent = '+ 수입 추가';
+  addIncBtn.addEventListener('click', () => {
+    entryData.incomes.push({ name: '', amount: 0, category: (userSettings.incomeCategories||['기타'])[0] });
+    renderIncomeList();
+  });
+  incomeSection.appendChild(addIncBtn);
+  body.appendChild(incomeSection);
+
   // Affiliate banner
   const banner = document.createElement('div');
   banner.className = 'affiliate-banner';
@@ -2342,8 +2813,9 @@ const CAT_COLORS = { '시설유지': '#1e5c3a', '농업': '#2980b9', '식비': '
 function renderExpenseTab() {
   document.getElementById('year-label').textContent = `${currentYear}년`;
 
-  let totalVisit = 0, totalActivity = 0, totalExpense = 0;
+  let totalVisit = 0, totalActivity = 0, totalExpense = 0, totalIncome = 0;
   const monthlyExpenses = Array(12).fill(0);
+  const monthlyIncomes = Array(12).fill(0);
   const catExpenses = {};
 
   Object.entries(allEntries).forEach(([dateStr, entry]) => {
@@ -2355,6 +2827,9 @@ function renderExpenseTab() {
     const expTotal = getEntryTotal(entry);
     totalExpense += expTotal;
     monthlyExpenses[mi] += expTotal;
+    const incTotal = getEntryIncome(entry);
+    totalIncome += incTotal;
+    monthlyIncomes[mi] += incTotal;
     if (entry.expenses) {
       entry.expenses.forEach(ex => {
         const cat = ex.category || '기타';
@@ -2362,6 +2837,22 @@ function renderExpenseTab() {
       });
     }
   });
+
+  // Income/Expense summary cards (insert before annual-grid or replace)
+  const annualGridEl = document.getElementById('annual-grid');
+  let ieRow = document.getElementById('ie-summary-row');
+  if (!ieRow) {
+    ieRow = document.createElement('div');
+    ieRow.id = 'ie-summary-row';
+    ieRow.className = 'income-expense-row';
+    annualGridEl.parentNode.insertBefore(ieRow, annualGridEl);
+  }
+  const balance = totalIncome - totalExpense;
+  ieRow.innerHTML = `
+    <div class="ie-card income"><div class="ie-card-label">수입합계</div><div class="ie-card-value">${formatWonMan(totalIncome)}<small style="font-size:12px;font-weight:500;margin-left:2px;">만원</small></div></div>
+    <div class="ie-card expense"><div class="ie-card-label">지출합계</div><div class="ie-card-value">${formatWonMan(totalExpense)}<small style="font-size:12px;font-weight:500;margin-left:2px;">만원</small></div></div>
+    <div class="ie-card" style="border-color:${balance>=0?'#a3e4b7':'#f5c6c0'}"><div class="ie-card-label">잔액</div><div class="ie-card-value" style="color:${balance>=0?'var(--primary)':'var(--red)'}">${balance>=0?'+':''}${formatWonMan(balance)}<small style="font-size:12px;font-weight:500;margin-left:2px;">만원</small></div></div>
+  `;
 
   document.getElementById('annual-grid').innerHTML = `
     <div class="annual-item"><div class="annual-value">${totalVisit}</div><div class="annual-label">방문일</div></div>
@@ -2371,7 +2862,7 @@ function renderExpenseTab() {
   `;
 
   renderDonutChart(catExpenses, totalExpense);
-  renderBarChart(monthlyExpenses);
+  renderBarChart(monthlyExpenses, monthlyIncomes);
 }
 
 function renderDonutChart(catExpenses, total) {
@@ -2441,26 +2932,61 @@ function renderDonutChart(catExpenses, total) {
   wrapper.appendChild(legend);
 }
 
-function renderBarChart(monthlyExpenses) {
+function shortWon(amt) {
+  if (amt === 0) return '';
+  if (amt >= 10000) return (amt / 10000).toFixed(1) + '만';
+  return Math.round(amt / 1000) + 'k';
+}
+
+function renderBarChart(monthlyExpenses, monthlyIncomes) {
   const container = document.getElementById('bar-chart');
   container.innerHTML = '';
-  const maxAmt = Math.max(...monthlyExpenses, 1);
+  const incomes  = monthlyIncomes  || Array(12).fill(0);
+  const maxAmt = Math.max(...monthlyExpenses, ...incomes, 1);
   const nowMonth = new Date().getMonth();
   const nowYear  = new Date().getFullYear();
+  const isCurrent = currentYear === nowYear;
 
-  monthlyExpenses.forEach((amt, mi) => {
+  monthlyExpenses.forEach((exp, mi) => {
+    const inc = incomes[mi] || 0;
+    const isNow = isCurrent && mi === nowMonth;
     const col = document.createElement('div');
     col.className = 'bar-col';
-    const fillWrap = document.createElement('div');
-    fillWrap.className = 'bar-fill-wrap';
-    const fill = document.createElement('div');
-    fill.className = 'bar-fill' + (mi === nowMonth && currentYear === nowYear ? ' current-month' : '');
-    fill.style.height = Math.round((amt / maxAmt) * 100) + '%';
-    fillWrap.appendChild(fill);
+
+    const pair = document.createElement('div');
+    pair.className = 'bar-pair';
+
+    // Income bar
+    const incWrap = document.createElement('div');
+    incWrap.className = 'bar-fill-wrap';
+    const incNum = document.createElement('div');
+    incNum.className = 'bar-num income-num';
+    incNum.textContent = shortWon(inc);
+    const incFill = document.createElement('div');
+    incFill.className = 'bar-fill income-bar' + (isNow ? ' current-month' : '');
+    incFill.style.height = Math.round((inc / maxAmt) * 100) + '%';
+    incWrap.appendChild(incNum);
+    incWrap.appendChild(incFill);
+
+    // Expense bar
+    const expWrap = document.createElement('div');
+    expWrap.className = 'bar-fill-wrap';
+    const expNum = document.createElement('div');
+    expNum.className = 'bar-num expense-num';
+    expNum.textContent = shortWon(exp);
+    const expFill = document.createElement('div');
+    expFill.className = 'bar-fill' + (isNow ? ' current-month' : '');
+    expFill.style.height = Math.round((exp / maxAmt) * 100) + '%';
+    expWrap.appendChild(expNum);
+    expWrap.appendChild(expFill);
+
+    pair.appendChild(incWrap);
+    pair.appendChild(expWrap);
+    col.appendChild(pair);
+
     const labelEl = document.createElement('div');
     labelEl.className = 'bar-label';
     labelEl.textContent = mi + 1;
-    col.appendChild(fillWrap);
     col.appendChild(labelEl);
     container.appendChild(col);
   });
@@ -2547,6 +3073,47 @@ function renderSettingsModal() {
     tagSection.appendChild(addForm);
   }
   body.appendChild(tagSection);
+
+  // Income categories
+  const incCatSection = document.createElement('div');
+  incCatSection.className = 'settings-section';
+  incCatSection.innerHTML = `<div class="settings-section-title">수입 카테고리 관리</div>`;
+  const incCatList = document.createElement('div');
+  (userSettings.incomeCategories || []).forEach((cat, idx) => {
+    const row = document.createElement('div');
+    row.className = 'tag-row';
+    row.innerHTML = `<div class="tag-row-info">💰 ${cat}</div>`;
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn-tag-delete';
+    delBtn.textContent = '삭제';
+    delBtn.addEventListener('click', () => {
+      if (!confirm(`"${cat}" 카테고리를 삭제할까요?`)) return;
+      userSettings.incomeCategories.splice(idx, 1);
+      saveSettings().then(() => { renderSettingsModal(); showToast('카테고리가 삭제됐어요.'); });
+    });
+    row.appendChild(delBtn);
+    incCatList.appendChild(row);
+  });
+  incCatSection.appendChild(incCatList);
+  const addIncForm = document.createElement('div');
+  addIncForm.className = 'add-tag-form';
+  const incInput = document.createElement('input');
+  incInput.placeholder = '새 수입 카테고리';
+  incInput.style.flex = '1';
+  const addIncBtn = document.createElement('button');
+  addIncBtn.className = 'btn-add-tag';
+  addIncBtn.textContent = '추가';
+  addIncBtn.addEventListener('click', () => {
+    const val = incInput.value.trim();
+    if (!val) { showToast('카테고리명을 입력하세요.'); return; }
+    if (!userSettings.incomeCategories) userSettings.incomeCategories = [];
+    userSettings.incomeCategories.push(val);
+    saveSettings().then(() => { renderSettingsModal(); showToast('카테고리가 추가됐어요!'); });
+  });
+  addIncForm.appendChild(incInput);
+  addIncForm.appendChild(addIncBtn);
+  incCatSection.appendChild(addIncForm);
+  body.appendChild(incCatSection);
 
   // Export
   const exportSection = document.createElement('div');
@@ -2667,6 +3234,467 @@ function downloadBlob(blob, filename) {
 }
 
 // ─────────────────────────────────────────────
+//  Search
+// ─────────────────────────────────────────────
+document.getElementById('btn-open-search').addEventListener('click', () => {
+  document.getElementById('search-overlay').classList.remove('hidden');
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-results').innerHTML = '';
+  setTimeout(() => document.getElementById('search-input').focus(), 50);
+});
+document.getElementById('btn-close-search').addEventListener('click', () => {
+  document.getElementById('search-overlay').classList.add('hidden');
+});
+document.getElementById('search-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('search-overlay'))
+    document.getElementById('search-overlay').classList.add('hidden');
+});
+document.getElementById('search-input').addEventListener('input', () => {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const resultsEl = document.getElementById('search-results');
+  if (!q) { resultsEl.innerHTML = ''; return; }
+  const matches = Object.entries(allEntries)
+    .filter(([dateStr, entry]) => {
+      if (dateStr.includes(q)) return true;
+      if ((entry.memo || '').toLowerCase().includes(q)) return true;
+      const tagLabels = (entry.tags || []).map(id => {
+        const t = userSettings.customTags.find(t => t.id === id);
+        return t ? (t.emoji + t.label).toLowerCase() : '';
+      }).join(' ');
+      if (tagLabels.includes(q)) return true;
+      return false;
+    })
+    .sort(([a],[b]) => b.localeCompare(a))
+    .slice(0, 30);
+
+  if (!matches.length) {
+    resultsEl.innerHTML = '<div class="search-no-result">검색 결과가 없습니다</div>';
+    return;
+  }
+  resultsEl.innerHTML = '';
+  matches.forEach(([dateStr, entry]) => {
+    const item = document.createElement('div');
+    item.className = 'search-result-item';
+    const tags = (entry.tags || []).map(id => {
+      const t = userSettings.customTags.find(t => t.id === id);
+      return t ? t.emoji : '';
+    }).join(' ');
+    item.innerHTML = `<div class="search-result-date">${dateStr}${entry.visited ? ' ✅' : ''}</div>
+      <div class="search-result-body">${tags} ${(entry.memo || '').slice(0, 60)}</div>`;
+    item.addEventListener('click', () => {
+      document.getElementById('search-overlay').classList.add('hidden');
+      // Navigate to that month
+      currentMonth = parseDate(dateStr);
+      currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'calendar'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-calendar'));
+      renderCalendar();
+      setTimeout(() => openEntryModal(dateStr), 100);
+    });
+    resultsEl.appendChild(item);
+  });
+});
+
+// ─────────────────────────────────────────────
+//  Farming Tab
+// ─────────────────────────────────────────────
+const FARMING_DATA = {
+  middle: [
+    { month: 1,  items: [{ type:'manage', text:'실내 씨앗 준비 및 정리' }, { type:'sow', text:'고추·토마토 온상 육묘 시작' }] },
+    { month: 2,  items: [{ type:'sow', text:'감자(시설) 파종' }, { type:'sow', text:'고추·토마토·가지 온상 육묘' }] },
+    { month: 3,  items: [{ type:'sow', text:'감자 노지 파종' }, { type:'plant', text:'딸기 정식' }, { type:'sow', text:'시금치·쑥갓·대파 파종' }] },
+    { month: 4,  items: [{ type:'plant', text:'고추·토마토 정식' }, { type:'sow', text:'상추·케일 파종' }, { type:'harvest', text:'시금치·대파 수확' }] },
+    { month: 5,  items: [{ type:'plant', text:'오이·수박·호박 정식' }, { type:'plant', text:'고구마 삽식' }, { type:'sow', text:'콩·옥수수 파종' }] },
+    { month: 6,  items: [{ type:'plant', text:'고구마 삽식(마무리)' }, { type:'harvest', text:'토마토·오이 수확 시작' }, { type:'sow', text:'김장배추 1차 직파' }] },
+    { month: 7,  items: [{ type:'sow', text:'가을배추·무 파종 준비' }, { type:'harvest', text:'오이·호박·수박 수확' }, { type:'manage', text:'마늘·양파 모종 파종 준비' }] },
+    { month: 8,  items: [{ type:'sow', text:'가을배추·무 파종' }, { type:'sow', text:'당근 파종' }, { type:'harvest', text:'고구마·고추 수확' }] },
+    { month: 9,  items: [{ type:'sow', text:'마늘 파종' }, { type:'sow', text:'양파 육묘 파종' }, { type:'sow', text:'시금치·대파 파종' }] },
+    { month: 10, items: [{ type:'plant', text:'양파 정식' }, { type:'harvest', text:'배추·무 수확 시작' }, { type:'harvest', text:'고구마 수확 완료' }] },
+    { month: 11, items: [{ type:'harvest', text:'월동배추·무 수확' }, { type:'manage', text:'마늘·양파 월동 관리' }, { type:'manage', text:'씨앗 건조·보관' }] },
+    { month: 12, items: [{ type:'manage', text:'씨앗 보관 및 정리' }, { type:'manage', text:'내년 농사 계획 수립' }] },
+  ],
+  south: [
+    { month: 1,  items: [{ type:'manage', text:'마늘·양파 월동 관리' }, { type:'manage', text:'봄감자 파종 준비' }] },
+    { month: 2,  items: [{ type:'sow', text:'봄감자 파종' }, { type:'harvest', text:'딸기 수확 시작' }, { type:'sow', text:'고추·토마토 육묘 시작' }] },
+    { month: 3,  items: [{ type:'plant', text:'봄감자 정식' }, { type:'harvest', text:'딸기 수확 성수기' }, { type:'manage', text:'양파 수확 준비' }] },
+    { month: 4,  items: [{ type:'plant', text:'고추·토마토 정식' }, { type:'harvest', text:'감자 수확' }, { type:'harvest', text:'봄배추·양파 수확' }] },
+    { month: 5,  items: [{ type:'plant', text:'오이·수박·호박 정식' }, { type:'plant', text:'고구마 삽식' }, { type:'harvest', text:'양파 수확 완료' }] },
+    { month: 6,  items: [{ type:'harvest', text:'마늘·감자 수확' }, { type:'plant', text:'고구마 삽식(마무리)' }, { type:'sow', text:'콩 파종' }] },
+    { month: 7,  items: [{ type:'harvest', text:'수박·오이 수확' }, { type:'sow', text:'가을배추·무 파종 준비' }, { type:'sow', text:'콩 2차 파종' }] },
+    { month: 8,  items: [{ type:'sow', text:'가을배추·무 파종(1차)' }, { type:'sow', text:'당근 파종' }, { type:'harvest', text:'고추·고구마 수확' }] },
+    { month: 9,  items: [{ type:'sow', text:'마늘 파종' }, { type:'sow', text:'양파 육묘 파종' }, { type:'sow', text:'가을배추 2차 파종' }] },
+    { month: 10, items: [{ type:'plant', text:'양파 정식' }, { type:'harvest', text:'배추·무 수확' }, { type:'manage', text:'마늘 관리' }] },
+    { month: 11, items: [{ type:'harvest', text:'월동채소 수확' }, { type:'manage', text:'마늘·양파 월동 준비' }, { type:'harvest', text:'고구마 저장' }] },
+    { month: 12, items: [{ type:'manage', text:'마늘·양파 월동 관리' }, { type:'manage', text:'내년 농사 계획' }] },
+  ],
+};
+const FARMING_TYPE_LABELS = { sow: '파종', plant: '정식/심기', harvest: '수확', manage: '관리' };
+const MONTH_NAMES = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+
+let farmingEditMode = false;
+
+function getFarmingData() {
+  const custom = userSettings.customFarming?.[farmingRegion];
+  if (custom) return custom;
+  return JSON.parse(JSON.stringify(FARMING_DATA[farmingRegion] || FARMING_DATA.middle));
+}
+
+function saveFarmingData(data) {
+  if (!userSettings.customFarming) userSettings.customFarming = {};
+  userSettings.customFarming[farmingRegion] = data;
+  saveSettings();
+}
+
+function renderFarmingTab() {
+  const container = document.getElementById('farming-calendar');
+  if (!container) return;
+  const data = getFarmingData();
+
+  // Region buttons
+  document.querySelectorAll('.region-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.region === farmingRegion);
+    btn.onclick = () => { farmingRegion = btn.dataset.region; farmingEditMode = false; renderFarmingTab(); };
+  });
+
+  // Edit / Done button
+  let editBtnRow = document.getElementById('farming-edit-row');
+  if (!editBtnRow) {
+    editBtnRow = document.createElement('div');
+    editBtnRow.id = 'farming-edit-row';
+    editBtnRow.style.cssText = 'display:flex;gap:8px;margin-bottom:10px;';
+    container.parentNode.insertBefore(editBtnRow, container);
+  }
+  editBtnRow.innerHTML = '';
+  const editToggleBtn = document.createElement('button');
+  editToggleBtn.className = farmingEditMode ? 'btn-notice-submit' : 'region-btn';
+  editToggleBtn.style.cssText = 'flex:0 0 auto;padding:8px 16px;font-size:13px;';
+  editToggleBtn.textContent = farmingEditMode ? '✅ 편집 완료' : '✏️ 편집';
+  editToggleBtn.addEventListener('click', () => { farmingEditMode = !farmingEditMode; renderFarmingTab(); });
+  editBtnRow.appendChild(editToggleBtn);
+
+  if (farmingEditMode && userSettings.customFarming?.[farmingRegion]) {
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'region-btn';
+    resetBtn.style.cssText = 'flex:0 0 auto;padding:8px 16px;font-size:13px;color:var(--red);';
+    resetBtn.textContent = '↺ 기본값으로';
+    resetBtn.addEventListener('click', () => {
+      if (!confirm('기본 영농정보로 초기화할까요?')) return;
+      if (userSettings.customFarming) delete userSettings.customFarming[farmingRegion];
+      saveSettings();
+      farmingEditMode = false;
+      renderFarmingTab();
+      showToast('기본값으로 초기화됐어요.');
+    });
+    editBtnRow.appendChild(resetBtn);
+  }
+
+  if (!farmingEditMode) {
+    // Read-only view
+    container.innerHTML = data.map(({ month, items }) => `
+      <div class="farming-month-card">
+        <div class="farming-month-title">${MONTH_NAMES[month-1]}</div>
+        <div class="farming-items">
+          ${items.map(item => `
+            <div class="farming-item">
+              <span class="farming-item-badge ${item.type}">${FARMING_TYPE_LABELS[item.type]||item.type}</span>
+              <span>${escapeHtml(item.text)}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+    return;
+  }
+
+  // Edit mode
+  container.innerHTML = '';
+  data.forEach(({ month, items }, mi) => {
+    const card = document.createElement('div');
+    card.className = 'farming-month-card';
+    const titleRow = document.createElement('div');
+    titleRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;';
+    titleRow.innerHTML = `<div class="farming-month-title">${MONTH_NAMES[month-1]}</div>`;
+    const addBtn = document.createElement('button');
+    addBtn.style.cssText = 'font-size:12px;padding:3px 8px;border:1px solid var(--primary);border-radius:var(--r-xs);background:var(--primary-pale);color:var(--primary);cursor:pointer;font-family:var(--font-body);';
+    addBtn.textContent = '+ 항목 추가';
+    addBtn.addEventListener('click', () => {
+      const currentData = getFarmingData();
+      currentData[mi].items.push({ type: 'manage', text: '' });
+      saveFarmingData(currentData);
+      renderFarmingTab();
+    });
+    titleRow.appendChild(addBtn);
+    card.appendChild(titleRow);
+
+    const itemsDiv = document.createElement('div');
+    itemsDiv.className = 'farming-items';
+
+    items.forEach((item, ii) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:6px;';
+
+      const typeSelect = document.createElement('select');
+      typeSelect.style.cssText = 'font-size:11px;padding:4px;border:1px solid var(--border);border-radius:var(--r-xs);font-family:var(--font-body);background:var(--surface);flex-shrink:0;';
+      Object.entries(FARMING_TYPE_LABELS).forEach(([val, label]) => {
+        const opt = document.createElement('option');
+        opt.value = val; opt.textContent = label;
+        if (val === item.type) opt.selected = true;
+        typeSelect.appendChild(opt);
+      });
+      typeSelect.addEventListener('change', () => {
+        const d = getFarmingData(); d[mi].items[ii].type = typeSelect.value; saveFarmingData(d);
+      });
+
+      const textInput = document.createElement('input');
+      textInput.type = 'text';
+      textInput.value = item.text;
+      textInput.style.cssText = 'flex:1;font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:var(--r-xs);font-family:var(--font-body);';
+      textInput.placeholder = '내용 입력...';
+      textInput.addEventListener('change', () => {
+        const d = getFarmingData(); d[mi].items[ii].text = textInput.value; saveFarmingData(d);
+      });
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '✕';
+      delBtn.style.cssText = 'flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:11px;cursor:pointer;';
+      delBtn.addEventListener('click', () => {
+        const d = getFarmingData(); d[mi].items.splice(ii, 1); saveFarmingData(d); renderFarmingTab();
+      });
+
+      row.appendChild(typeSelect);
+      row.appendChild(textInput);
+      row.appendChild(delBtn);
+      itemsDiv.appendChild(row);
+    });
+    card.appendChild(itemsDiv);
+    container.appendChild(card);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  Annual Activity Tab
+// ─────────────────────────────────────────────
+document.getElementById('btn-annual-prev').addEventListener('click', () => { currentAnnualYear--; renderAnnualTab(); });
+document.getElementById('btn-annual-next').addEventListener('click', () => { currentAnnualYear++; renderAnnualTab(); });
+
+function renderAnnualTab() {
+  document.getElementById('annual-year-label').textContent = `${currentAnnualYear}년`;
+
+  // Tag selector
+  const tagSelect = document.getElementById('annual-tag-select');
+  tagSelect.innerHTML = '';
+  userSettings.customTags.sort((a,b) => a.order - b.order).forEach(tag => {
+    const chip = document.createElement('button');
+    chip.className = 'annual-tag-chip' + (annualActTag === tag.id ? ' active' : '');
+    chip.textContent = tag.emoji + ' ' + tag.label;
+    chip.addEventListener('click', () => {
+      annualActTag = annualActTag === tag.id ? null : tag.id;
+      renderAnnualTab();
+    });
+    tagSelect.appendChild(chip);
+  });
+
+  // 12-month grid
+  const grid = document.getElementById('annual-act-grid');
+  grid.className = 'annual-act-grid';
+  grid.innerHTML = '';
+
+  for (let mo = 0; mo < 12; mo++) {
+    const card = document.createElement('div');
+    card.className = 'annual-month-card';
+    const title = document.createElement('div');
+    title.className = 'annual-month-name';
+    title.textContent = MONTH_NAMES[mo];
+    card.appendChild(title);
+
+    const entries = Object.entries(allEntries)
+      .filter(([dateStr, entry]) => {
+        const d = parseDate(dateStr);
+        if (d.getFullYear() !== currentAnnualYear || d.getMonth() !== mo) return false;
+        if (annualActTag && !(entry.tags || []).includes(annualActTag)) return false;
+        return entry.visited || (entry.tags && entry.tags.length) || entry.memo;
+      })
+      .sort(([a],[b]) => a.localeCompare(b));
+
+    if (!entries.length) {
+      const empty = document.createElement('div');
+      empty.className = 'annual-month-empty';
+      empty.textContent = '기록 없음';
+      card.appendChild(empty);
+    } else {
+      entries.forEach(([dateStr, entry]) => {
+        const row = document.createElement('div');
+        row.className = 'annual-month-entry';
+        const d = parseDate(dateStr);
+        const tagNote = annualActTag && entry.tagMemos?.[annualActTag]
+          ? entry.tagMemos[annualActTag].slice(0, 20)
+          : (entry.memo || '').slice(0, 20);
+        const tags = annualActTag ? '' : (entry.tags || []).map(id => {
+          const t = userSettings.customTags.find(t => t.id === id);
+          return t ? t.emoji : '';
+        }).join('');
+        row.textContent = `${d.getDate()}일 ${tags}${tagNote ? ' ' + tagNote : ''}`;
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', () => openEntryModal(dateStr));
+        card.appendChild(row);
+      });
+    }
+    grid.appendChild(card);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Reviews
+// ─────────────────────────────────────────────
+async function loadReviews() {
+  try {
+    if (!demoMode && db) {
+      const snap = await get(child(dbRef(db), 'reviews'));
+      reviewsData = snap.exists() ? snap.val() : {};
+    } else {
+      // Demo: load any locally saved reviews
+      reviewsData = {};
+      Object.keys(localStorage).filter(k => k.startsWith('shd_reviews_')).forEach(k => {
+        try {
+          const r = JSON.parse(localStorage.getItem(k));
+          const id = k.replace('shd_reviews_', '').replace(/_/g, '/').replace('reviews/', '');
+          reviewsData[id] = r;
+        } catch(e) {}
+      });
+    }
+  } catch(e) {
+    reviewsData = {};
+  }
+}
+
+function starsHtml(rating) {
+  return Array.from({ length: 5 }, (_, i) => `<span style="color:${i < rating ? '#f59e0b' : '#d1d5db'}">★</span>`).join('');
+}
+
+function renderReviews() {
+  const list = document.getElementById('review-list');
+  const empty = document.getElementById('review-empty');
+  const writeArea = document.getElementById('review-write-area');
+  if (!list) return;
+
+  // Write button (logged-in users)
+  if (writeArea) {
+    const myKey = currentUser ? Object.keys(reviewsData).find(k => reviewsData[k].uid === currentUser.uid) : null;
+    writeArea.innerHTML = '';
+    if (currentUser) {
+      const btn = document.createElement('button');
+      btn.className = 'btn-write-review';
+      btn.textContent = myKey ? '내 후기 수정' : '+ 후기 작성';
+      btn.addEventListener('click', () => openReviewModal(myKey || null));
+      writeArea.appendChild(btn);
+    }
+  }
+
+  const entries = Object.entries(reviewsData)
+    .filter(([,r]) => r && typeof r === 'object')
+    .sort(([,a],[,b]) => b.createdAt - a.createdAt);
+
+  if (!entries.length) { empty.style.display = 'block'; list.innerHTML = ''; return; }
+  empty.style.display = 'none';
+  list.innerHTML = entries.map(([id, r]) => `
+    <div class="review-card">
+      <div class="review-card-header">
+        <span class="review-author">${escapeHtml(r.displayName || '익명')}</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="review-stars">${starsHtml(r.rating)}</span>
+          ${(currentUser && r.uid === currentUser.uid) ? `<button class="review-del-btn" onclick="deleteReview('${id}')">삭제</button>` : ''}
+        </div>
+      </div>
+      <div class="review-body" style="white-space:pre-wrap;">${linkifyText(r.body)}</div>
+      <div class="review-date">${formatNoticeDate(r.createdAt)}</div>
+    </div>
+  `).join('');
+}
+
+let reviewRating = 0;
+
+function openReviewModal(existingId) {
+  reviewRating = existingId ? (reviewsData[existingId]?.rating || 0) : 0;
+  document.getElementById('review-body-input').value = existingId ? (reviewsData[existingId]?.body || '') : '';
+  updateStarDisplay();
+  document.getElementById('review-modal-overlay').classList.remove('hidden');
+  document.getElementById('btn-review-submit').dataset.editId = existingId || '';
+}
+
+function updateStarDisplay() {
+  document.querySelectorAll('.star-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i < reviewRating);
+  });
+}
+
+document.querySelectorAll('.star-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    reviewRating = Number(btn.dataset.val);
+    updateStarDisplay();
+  });
+  btn.addEventListener('mouseover', () => {
+    const hval = Number(btn.dataset.val);
+    document.querySelectorAll('.star-btn').forEach((b, i) => b.classList.toggle('hover', i < hval));
+  });
+  btn.addEventListener('mouseout', () => {
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('hover'));
+  });
+});
+
+document.getElementById('btn-review-cancel').addEventListener('click', () => {
+  document.getElementById('review-modal-overlay').classList.add('hidden');
+});
+
+document.getElementById('btn-review-submit').addEventListener('click', async () => {
+  const body = document.getElementById('review-body-input').value.trim();
+  if (!reviewRating) { showToast('별점을 선택해 주세요.'); return; }
+  if (!body) { showToast('내용을 입력해 주세요.'); return; }
+  const editId = document.getElementById('btn-review-submit').dataset.editId;
+  const id = editId || ('review_' + currentUser.uid + '_' + Date.now());
+  const review = {
+    uid: currentUser.uid,
+    displayName: currentUser.displayName || '익명',
+    rating: reviewRating,
+    body,
+    createdAt: editId ? (reviewsData[editId]?.createdAt || Date.now()) : Date.now(),
+  };
+  try {
+    if (!demoMode && db) {
+      await set(dbRef(db, 'reviews/' + id), review);
+    } else {
+      localStorage.setItem(lsKey('reviews/' + id), JSON.stringify(review));
+    }
+    reviewsData[id] = review;
+    document.getElementById('review-modal-overlay').classList.add('hidden');
+    renderReviews();
+    showToast(editId ? '후기가 수정됐어요.' : '후기가 등록됐어요! ⭐');
+  } catch(e) { showToast('저장에 실패했어요.'); }
+});
+
+async function deleteReview(id) {
+  if (!confirm('후기를 삭제할까요?')) return;
+  delete reviewsData[id];
+  renderReviews();
+  if (!demoMode && db) {
+    try { await remove(dbRef(db, 'reviews/' + id)); }
+    catch(e) { await loadReviews(); renderReviews(); showToast('삭제 실패'); return; }
+  }
+  showToast('후기가 삭제됐어요.');
+}
+window.deleteReview = deleteReview;
+
+// Board sub-tab switching
+document.querySelectorAll('.board-subtab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    boardSubTab = btn.dataset.subtab;
+    document.querySelectorAll('.board-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.subtab === boardSubTab));
+    document.getElementById('board-notice-panel').style.display = boardSubTab === 'notice' ? '' : 'none';
+    document.getElementById('board-review-panel').style.display = boardSubTab === 'review' ? '' : 'none';
+    if (boardSubTab === 'review') renderReviews();
+  });
+});
+
+// ─────────────────────────────────────────────
 //  Firebase Auth State Listener
 // ─────────────────────────────────────────────
 if (!demoMode && auth) {
@@ -2685,7 +3713,11 @@ const ADMIN_EMAIL = 'kjj0708@gmail.com';
 let noticesData = {};
 
 function isAdmin() {
-  return currentUser && currentUser.email === ADMIN_EMAIL;
+  if (!currentUser) return false;
+  if (currentUser.email === ADMIN_EMAIL) return true;
+  // Allow demo admin for testing
+  if (demoMode && currentUser.uid === 'demo') return true;
+  return false;
 }
 
 async function loadNotices() {
@@ -2724,7 +3756,7 @@ function renderNotices() {
         <svg class="notice-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
       <div class="notice-body-wrap">
-        <div class="notice-body">${escapeHtml(n.body)}</div>
+        <div class="notice-body" style="white-space:pre-wrap;line-height:1.7;">${linkifyText(n.body)}</div>
         ${(n.images||[]).length ? `<div class="notice-images">${(n.images||[]).map((src,i)=>`<img class="notice-img" src="${src}" onclick="openLightbox('${id}',${i})" />`).join('')}</div>` : ''}
         ${isAdmin() ? `
         <div class="notice-admin-btns">
@@ -2750,6 +3782,11 @@ function hideDelConfirm(id) { document.getElementById('del-confirm-'+id)?.classL
 
 function escapeHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function linkifyText(str) {
+  const escaped = escapeHtml(str);
+  return escaped.replace(/(https?:\/\/[^\s<>"{}|\\^[\]`]+)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" class="auto-link">$1</a>');
 }
 function formatNoticeDate(ts) {
   const d=new Date(ts);
@@ -2889,6 +3926,37 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
 }
 </script>
+
+<!-- Search Overlay -->
+<div class="search-overlay hidden" id="search-overlay">
+  <div class="search-box">
+    <div class="search-input-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="search-input" placeholder="키워드 또는 날짜(2025-01-01)" autocomplete="off" />
+      <button class="search-close-btn" id="btn-close-search">✕</button>
+    </div>
+    <div id="search-results"></div>
+  </div>
+</div>
+
+<!-- Review Write Modal -->
+<div class="notice-modal-overlay hidden" id="review-modal-overlay">
+  <div class="notice-modal">
+    <div class="notice-modal-title">사용후기 작성</div>
+    <div class="star-rating-input" id="star-rating-input">
+      <span class="star-btn" data-val="1">★</span>
+      <span class="star-btn" data-val="2">★</span>
+      <span class="star-btn" data-val="3">★</span>
+      <span class="star-btn" data-val="4">★</span>
+      <span class="star-btn" data-val="5">★</span>
+    </div>
+    <textarea class="notice-input notice-textarea" id="review-body-input" placeholder="사용 소감을 남겨주세요 (최대 500자)" maxlength="500"></textarea>
+    <div class="notice-modal-btns">
+      <button class="btn-notice-cancel" id="btn-review-cancel">취소</button>
+      <button class="btn-notice-submit" id="btn-review-submit">등록</button>
+    </div>
+  </div>
+</div>
 
 <!-- Notice Write/Edit Modal -->
 <div class="notice-modal-overlay hidden" id="notice-modal-overlay">
