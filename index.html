@@ -3635,7 +3635,7 @@ function renderReviews() {
   list.innerHTML = entries.map(([id, r]) => `
     <div class="review-card">
       <div class="review-card-header">
-        <span class="review-author">${escapeHtml(r.displayName || '익명')}</span>
+        <span class="review-author">${escapeHtml(maskName(r.displayName, r.email))}</span>
         <div style="display:flex;align-items:center;gap:8px;">
           <span class="review-stars">${starsHtml(r.rating)}</span>
           ${(currentUser && r.uid === currentUser.uid) ? `<button class="review-del-btn" onclick="deleteReview('${id}')">삭제</button>` : ''}
@@ -3645,6 +3645,16 @@ function renderReviews() {
       <div class="review-date">${formatNoticeDate(r.createdAt)}</div>
     </div>
   `).join('');
+}
+
+// 이름 마스킹: "김종진" → "김**", 이름 없으면 이메일 앞부분 표시
+function maskName(name, email) {
+  if (name && name.length >= 2 && !name.includes('@')) {
+    return name[0] + '*'.repeat(name.length - 1);
+  }
+  if (name && name.length === 1) return name;
+  if (email && email.includes('@')) return email.split('@')[0];
+  return '익명';
 }
 
 let reviewRating = 0;
@@ -3689,7 +3699,8 @@ document.getElementById('btn-review-submit').addEventListener('click', async () 
   const id = editId || ('review_' + currentUser.uid + '_' + Date.now());
   const review = {
     uid: currentUser.uid,
-    displayName: currentUser.displayName || '익명',
+    displayName: currentUser.displayName || '',
+    email: currentUser.email || '',
     rating: reviewRating,
     body,
     createdAt: editId ? (reviewsData[editId]?.createdAt || Date.now()) : Date.now(),
