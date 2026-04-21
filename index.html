@@ -1953,7 +1953,7 @@
     </div>
   </div>
 
-  <footer class="app-footer">만든이 : 강화힐링아지트</footer>
+  <footer class="app-footer">만든이 : 강화힐링아지트 &nbsp;·&nbsp; v1.1</footer>
 </div>
 
 <!-- Entry Modal -->
@@ -2399,7 +2399,22 @@ function renderCalendar() {
       cell.appendChild(expEl);
     }
 
-    if (entry && entry.memo) {
+    // tagMemos: show each tag's memo in the cell
+    if (entry && entry.tagMemos && Object.keys(entry.tagMemos).length) {
+      const tagMemoEl = document.createElement('div');
+      tagMemoEl.className = 'cal-memo';
+      const lines = (entry.tags || [])
+        .map(id => {
+          const t = userSettings.customTags.find(t => t.id === id);
+          const m = entry.tagMemos[id];
+          return (t && m) ? `${t.emoji} ${m}` : null;
+        })
+        .filter(Boolean);
+      if (lines.length) {
+        tagMemoEl.innerHTML = lines.map(l => linkifyText(l)).join('<br>');
+        cell.appendChild(tagMemoEl);
+      }
+    } else if (entry && entry.memo) {
       const memoEl = document.createElement('div');
       memoEl.className = 'cal-memo';
       memoEl.innerHTML = linkifyText(entry.memo);
