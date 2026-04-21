@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="세컨하우스 다이어리 - 세컨하우스·텃밭·주말농장 방문 기록부터 가계부, 영농정보까지 한 번에 관리하는 스마트 앱" />
-  <title>세컨하우스 다이어리 — 나만의 별장, 텃밭 기록장</title>
+  <title>세컨하우스 다이어리 — 나만의 두 번째 집 기록장</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -51,11 +51,11 @@
     .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .logo-icon {
       width: 32px; height: 32px;
-      background: var(--g4);
       border-radius: 8px;
+      overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
     }
+    .logo-icon img { width: 100%; height: 100%; object-fit: cover; }
     .logo-text { font-size: 15px; font-weight: 700; color: var(--white); letter-spacing: -0.3px; }
     .header-cta {
       background: var(--g4);
@@ -581,7 +581,7 @@
 <!-- HEADER -->
 <header class="site-header">
   <a href="#" class="logo">
-    <div class="logo-icon">🌿</div>
+    <div class="logo-icon"><img src="./icons/icon-192.png" alt="로고" /></div>
     <span class="logo-text">세컨하우스 다이어리</span>
   </a>
   <a href="./index.html" class="header-cta">무료로 시작하기 →</a>
@@ -599,12 +599,12 @@
       </h1>
       <p class="hero-sub">
         세컨하우스·텃밭·주말농장 방문부터<br>
-        가계부, 영농정보, 커뮤니티까지<br>
+        가계부, 영농정보, 연간 활동 요약까지<br>
         하나의 앱으로 스마트하게 관리하세요.
       </p>
       <div class="hero-btns">
         <a href="./index.html" class="btn-primary">
-          🌿 지금 바로 시작하기
+          <img src="./icons/icon-192.png" alt="" style="width:20px;height:20px;border-radius:5px;vertical-align:middle;"> 지금 바로 시작하기
         </a>
         <a href="#features" class="btn-secondary">
           기능 살펴보기 ↓
@@ -746,13 +746,13 @@
         </div>
       </div>
       <div class="feature-card fade-in">
-        <div class="feature-icon">📋</div>
-        <div class="feature-title">게시판</div>
-        <div class="feature-desc">관리자 공지사항과 사용후기를 한 곳에서. 별점 후기로 생생한 경험을 나누고, URL 자동 링크 변환으로 편리하게.</div>
+        <div class="feature-icon">🔔</div>
+        <div class="feature-title">1년 전 오늘 알림</div>
+        <div class="feature-desc">연간 탭에서 작년 같은 달의 활동 내역을 한눈에 확인. 작년에 어떤 작물을 심었는지, 어떤 수리를 했는지 놓치지 않고 반복 작업을 스마트하게 챙기세요.</div>
         <div class="feature-tags">
-          <span class="feature-tag">공지사항</span>
-          <span class="feature-tag">별점 후기</span>
-          <span class="feature-tag">사진 첨부</span>
+          <span class="feature-tag">1년 전 활동</span>
+          <span class="feature-tag">반복 작업 관리</span>
+          <span class="feature-tag">월별 비교</span>
         </div>
       </div>
       <div class="feature-card fade-in" style="background: linear-gradient(135deg, var(--g7), var(--g8)); border-color: var(--g6);">
@@ -902,6 +902,59 @@
 </section>
 
 
+<!-- SHOWCASE 3: 1년 전 활동 -->
+<section style="background: var(--g8); padding: 80px 32px;">
+  <div class="section-inner">
+    <div class="showcase-grid fade-in">
+      <div class="showcase-text">
+        <div class="showcase-num">03</div>
+        <h3 class="showcase-title">작년 이맘때<br>뭘 했는지 기억하세요?</h3>
+        <p class="showcase-desc">연간 탭을 열면 1년 전 같은 달의 활동이 바로 보입니다. 파종 시기, 수리 내역, 방문 패턴을 비교하며 올해 계획을 더 스마트하게 세우세요.</p>
+        <ul class="showcase-list">
+          <li>연간 탭에서 월별 활동 한눈에 비교</li>
+          <li>태그별 필터로 작물·수리 등 항목만 조회</li>
+          <li>달력 메모까지 연간 탭에 함께 표시</li>
+          <li>반복되는 계절 작업을 놓치지 않는 루틴 관리</li>
+        </ul>
+      </div>
+      <div class="showcase-visual">
+        <div class="mock-card">
+          <div class="mock-card-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>연간 활동 요약</span>
+            <span style="font-size:11px;color:var(--g3);font-weight:700;">2025년</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:var(--g8);border-radius:10px;padding:10px 12px;">
+              <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:6px;">3월</div>
+              <div style="font-size:11px;color:var(--text2);line-height:1.7;">
+                🌱 상추·시금치 파종<br>
+                🔧 수도관 동파 수리<br>
+                <span style="color:var(--g3);font-size:10px;font-weight:600;">방문 3회</span>
+              </div>
+            </div>
+            <div style="background:var(--amber-light);border:1px solid #fde68a;border-radius:10px;padding:10px 12px;">
+              <div style="font-size:10px;font-weight:700;color:var(--amber);margin-bottom:6px;">🔔 1년 전 · 작년 3월</div>
+              <div style="font-size:11px;color:var(--text2);line-height:1.7;">
+                🌱 완두콩·쑥갓 파종<br>
+                🔧 울타리 보수 작업<br>
+                <span style="color:var(--amber);font-size:10px;font-weight:600;">올해도 파종 시기예요!</span>
+              </div>
+            </div>
+            <div style="background:var(--g8);border-radius:10px;padding:10px 12px;">
+              <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:6px;">4월</div>
+              <div style="font-size:11px;color:var(--text2);line-height:1.7;">
+                🌿 감자·고추 정식<br>
+                <span style="color:var(--g3);font-size:10px;font-weight:600;">방문 4회</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 <!-- HOW IT WORKS -->
 <section class="hiw">
   <div class="section-inner">
@@ -924,7 +977,7 @@
       <div class="step fade-in">
         <div class="step-num">3</div>
         <div class="step-title">기록 시작</div>
-        <div class="step-desc">오늘 방문을 달력에 기록하고, 태그·메모·사진을 추가해 보세요.</div>
+        <div class="step-desc">오늘 방문을 달력에 기록하고, 태그·메모를 추가해 보세요.</div>
       </div>
     </div>
   </div>
@@ -953,12 +1006,12 @@
       <div class="persona-card fade-in">
         <div class="persona-emoji">👨‍👩‍👧‍�</div>
         <div class="persona-title">가족 공동 관리자</div>
-        <div class="persona-desc">가족이 함께 사용하는 공간의 방문·비용 기록을 공유하고, 소식을 나누고 싶은 분</div>
+        <div class="persona-desc">가족이 함께 사용하는 공간의 방문·비용 기록을 공유하고, 게시판으로 소식을 나누고 싶은 분</div>
       </div>
       <div class="persona-card fade-in">
-        <div class="persona-emoji">🏘️</div>
-        <div class="persona-title">소규모 커뮤니티</div>
-        <div class="persona-desc">사용자들과 공지사항·후기를 나누고, 관리자가 중요 소식을 공유할 수 있는 간편한 소통 공간이 필요한 분</div>
+        <div class="persona-emoji">🔁</div>
+        <div class="persona-title">연간 루틴 관리자</div>
+        <div class="persona-desc">작년 이맘때 뭘 했는지 기억이 흐릿한 분. 1년 전 활동 기록을 보며 파종·수확·수리 등 반복 작업을 놓치지 않고 챙기고 싶은 분</div>
       </div>
     </div>
   </div>
@@ -1034,7 +1087,7 @@
         </div>
       </div>
       <a href="./index.html" class="btn-pwa">
-        🌿 세컨하우스 다이어리 시작하기
+        <img src="./icons/icon-192.png" alt="" style="width:24px;height:24px;border-radius:6px;vertical-align:middle;"> 세컨하우스 다이어리 시작하기
       </a>
       <p style="color:rgba(255,255,255,.4); font-size:12px; margin-top:20px;">
         스마트폰에서 '홈 화면에 추가'하면 앱처럼 설치돼요 📲
@@ -1046,7 +1099,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">🌿 세컨하우스 다이어리</div>
+  <div class="footer-logo"><img src="./icons/icon-192.png" alt="로고" style="width:28px;height:28px;border-radius:8px;vertical-align:middle;margin-right:8px;"> 세컨하우스 다이어리</div>
   <p>두 번째 집을 위한 스마트 기록 앱</p>
   <div class="footer-links">
     <a href="./index.html">앱 시작하기</a>
