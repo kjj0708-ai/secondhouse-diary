@@ -3527,7 +3527,8 @@ function renderAnnualTab() {
         const d = parseDate(dateStr);
         if (d.getFullYear() !== currentAnnualYear || d.getMonth() !== mo) return false;
         if (annualActTag && !(entry.tags || []).includes(annualActTag)) return false;
-        return entry.visited || (entry.tags && entry.tags.length) || entry.memo;
+        const hasTagMemo = entry.tagMemos && Object.values(entry.tagMemos).some(v => v);
+        return entry.visited || (entry.tags && entry.tags.length) || entry.memo || hasTagMemo;
       })
       .sort(([a],[b]) => a.localeCompare(b));
 
@@ -3541,14 +3542,36 @@ function renderAnnualTab() {
         const row = document.createElement('div');
         row.className = 'annual-month-entry';
         const d = parseDate(dateStr);
-        const tagNote = annualActTag && entry.tagMemos?.[annualActTag]
-          ? entry.tagMemos[annualActTag].slice(0, 20)
-          : (entry.memo || '').slice(0, 20);
-        const tags = annualActTag ? '' : (entry.tags || []).map(id => {
-          const t = userSettings.customTags.find(t => t.id === id);
-          return t ? t.emoji : '';
-        }).join('');
-        row.textContent = `${d.getDate()}일 ${tags}${tagNote ? ' ' + tagNote : ''}`;
+
+        let lines = [];
+        if (annualActTag) {
+          // 특정 태그 필터: 해당 태그 메모 표시
+          const t = userSettings.customTags.find(t => t.id === annualActTag);
+          const tagMemo = entry.tagMemos?.[annualActTag] || '';
+          const label = t ? `${t.emoji} ` : '';
+          if (tagMemo) lines.push(label + tagMemo);
+          if (entry.memo) lines.push(entry.memo);
+        } else {
+          // 전체: 태그별 메모 + 전체 메모 모두 표시
+          (entry.tags || []).forEach(tid => {
+            const t = userSettings.customTags.find(t => t.id === tid);
+            const m = entry.tagMemos?.[tid];
+            if (t && m) lines.push(`${t.emoji} ${m}`);
+          });
+          if (entry.memo) lines.push(entry.memo);
+        }
+
+        const dateLabel = document.createElement('span');
+        dateLabel.style.cssText = 'font-weight:700;color:var(--primary);margin-right:4px;';
+        dateLabel.textContent = d.getDate() + '일';
+        row.appendChild(dateLabel);
+
+        if (lines.length) {
+          const content = document.createElement('span');
+          content.textContent = lines.map(l => l.slice(0, 30)).join(' / ');
+          row.appendChild(content);
+        }
+
         row.style.cursor = 'pointer';
         row.addEventListener('click', () => openEntryModal(dateStr));
         card.appendChild(row);
@@ -3567,13 +3590,11 @@ async function loadReviews() {
       const snap = await get(child(dbRef(db), 'reviews'));
       reviewsData = snap.exists() ? snap.val() : {};
     } else {
-      // Demo: load any locally saved reviews
       reviewsData = {};
-      Object.keys(localStorage).filter(k => k.startsWith('shd_reviews_')).forEach(k => {
+      Object.keys(localStorage).filter(k => k.startsWith('shd_review__')).forEach(k => {
         try {
-          const r = JSON.parse(localStorage.getItem(k));
-          const id = k.replace('shd_reviews_', '').replace(/_/g, '/').replace('reviews/', '');
-          reviewsData[id] = r;
+          const id = k.slice('shd_review__'.length);
+          reviewsData[id] = JSON.parse(localStorage.getItem(k));
         } catch(e) {}
       });
     }
@@ -3677,7 +3698,7 @@ document.getElementById('btn-review-submit').addEventListener('click', async () 
     if (!demoMode && db) {
       await set(dbRef(db, 'reviews/' + id), review);
     } else {
-      localStorage.setItem(lsKey('reviews/' + id), JSON.stringify(review));
+      localStorage.setItem('shd_review__' + id, JSON.stringify(review));
     }
     reviewsData[id] = review;
     document.getElementById('review-modal-overlay').classList.add('hidden');
@@ -3693,6 +3714,8 @@ async function deleteReview(id) {
   if (!demoMode && db) {
     try { await remove(dbRef(db, 'reviews/' + id)); }
     catch(e) { await loadReviews(); renderReviews(); showToast('삭제 실패'); return; }
+  } else {
+    localStorage.removeItem('shd_review__' + id);
   }
   showToast('후기가 삭제됐어요.');
 }
