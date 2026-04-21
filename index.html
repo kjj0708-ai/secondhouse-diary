@@ -3704,7 +3704,10 @@ document.getElementById('btn-review-submit').addEventListener('click', async () 
     document.getElementById('review-modal-overlay').classList.add('hidden');
     renderReviews();
     showToast(editId ? '후기가 수정됐어요.' : '후기가 등록됐어요! ⭐');
-  } catch(e) { showToast('저장에 실패했어요.'); }
+  } catch(e) {
+    console.error('review save error:', e);
+    showToast('저장 실패: ' + (e?.message || e));
+  }
 });
 
 async function deleteReview(id) {
