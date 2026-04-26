@@ -4011,17 +4011,18 @@ window.removeImg     = removeImg;
 history.pushState(null, '');
 
 function getOpenOverlay() {
-  if (!document.getElementById('img-lightbox').classList.contains('hidden')) return 'img-lightbox';
-  if (document.getElementById('entry-modal').classList.contains('active')) return 'entry-modal';
-  if (document.getElementById('settings-modal').classList.contains('active')) return 'settings-modal';
-  if (!document.getElementById('search-overlay').classList.contains('hidden')) return 'search-overlay';
-  if (!document.getElementById('review-modal-overlay').classList.contains('hidden')) return 'review-modal-overlay';
-  if (!document.getElementById('notice-modal-overlay').classList.contains('hidden')) return 'notice-modal-overlay';
+  if (document.getElementById('img-lightbox')?.classList.contains('hidden') === false) return 'img-lightbox';
+  if (document.getElementById('entry-modal')?.classList.contains('active')) return 'entry-modal';
+  if (document.getElementById('settings-modal')?.classList.contains('active')) return 'settings-modal';
+  if (document.getElementById('search-overlay')?.classList.contains('hidden') === false) return 'search-overlay';
+  if (document.getElementById('review-modal-overlay')?.classList.contains('hidden') === false) return 'review-modal-overlay';
+  if (document.getElementById('notice-modal-overlay')?.classList.contains('hidden') === false) return 'notice-modal-overlay';
   return null;
 }
 
 function closeOverlayById(id) {
   const el = document.getElementById(id);
+  if (!el) return;
   if (id === 'entry-modal' || id === 'settings-modal') el.classList.remove('active');
   else el.classList.add('hidden');
 }
@@ -4036,15 +4037,15 @@ function activateTabDirect(tab) {
 }
 
 window.addEventListener('popstate', () => {
-  history.pushState(null, ''); // 항상 다음 뒤로가기를 받을 상태 유지
-
   const overlay = getOpenOverlay();
   if (overlay) {
+    history.pushState(null, '');
     closeOverlayById(overlay);
     return;
   }
 
   if (tabHistory.length > 1) {
+    history.pushState(null, '');
     tabHistory.pop();
     activateTabDirect(tabHistory[tabHistory.length - 1]);
     return;
@@ -4052,11 +4053,12 @@ window.addEventListener('popstate', () => {
 
   // 더 이상 뒤로 갈 곳 없음 — 종료 확인
   if (backExitTimer) {
+    // 2초 안에 한 번 더 누름 → guard 재설치 안 함 → 다음 뒤로가기 시 브라우저가 종료 처리
     clearTimeout(backExitTimer);
     backExitTimer = null;
-    history.go(-(history.length));
     return;
   }
+  history.pushState(null, ''); // 다음 뒤로가기 대기
   showToast('한 번 더 누르면 앱이 종료됩니다.');
   backExitTimer = setTimeout(() => { backExitTimer = null; }, 2000);
 });
