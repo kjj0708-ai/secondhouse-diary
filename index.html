@@ -2046,6 +2046,8 @@ let annualActTag  = null;
 let boardSubTab   = 'notice';
 let farmingRegion = 'middle';
 let reviewsData   = {};
+const tabHistory  = ['calendar'];
+let backExitTimer = null;
 
 const CATEGORIES = ['시설유지','농업','식비','기타'];
 
@@ -2292,6 +2294,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     if (tab === 'notice') { loadNotices(); if (boardSubTab === 'review') loadReviews(); }
     if (tab === 'farming') renderFarmingTab();
     if (tab === 'annual') renderAnnualTab();
+    tabHistory.push(tab);
   });
 });
 
@@ -3658,10 +3661,35 @@ function maskName(name, email) {
 }
 
 let reviewRating = 0;
+const REVIEW_DRAFT_KEY = 'shd_review_draft__';
+
+function saveReviewDraft() {
+  const body = document.getElementById('review-body-input')?.value || '';
+  const editId = document.getElementById('btn-review-submit')?.dataset.editId || '';
+  localStorage.setItem(REVIEW_DRAFT_KEY, JSON.stringify({ body, rating: reviewRating, editId }));
+}
+
+function clearReviewDraft() {
+  localStorage.removeItem(REVIEW_DRAFT_KEY);
+}
 
 function openReviewModal(existingId) {
-  reviewRating = existingId ? (reviewsData[existingId]?.rating || 0) : 0;
-  document.getElementById('review-body-input').value = existingId ? (reviewsData[existingId]?.body || '') : '';
+  // 기존 데이터(수정 모드) 우선, 없으면 임시저장 불러오기
+  const draft = (() => { try { return JSON.parse(localStorage.getItem(REVIEW_DRAFT_KEY) || 'null'); } catch(e) { return null; } })();
+  const isSameDraft = draft && draft.editId === (existingId || '');
+
+  if (existingId) {
+    reviewRating = reviewsData[existingId]?.rating || 0;
+    document.getElementById('review-body-input').value = reviewsData[existingId]?.body || '';
+  } else if (isSameDraft && (draft.body || draft.rating)) {
+    reviewRating = draft.rating || 0;
+    document.getElementById('review-body-input').value = draft.body || '';
+    if (draft.body || draft.rating) showToast('이전에 작성 중이던 내용을 불러왔어요.');
+  } else {
+    reviewRating = 0;
+    document.getElementById('review-body-input').value = '';
+  }
+
   updateStarDisplay();
   document.getElementById('review-modal-overlay').classList.remove('hidden');
   document.getElementById('btn-review-submit').dataset.editId = existingId || '';
@@ -3673,10 +3701,14 @@ function updateStarDisplay() {
   });
 }
 
+// 본문 입력 시 자동 임시저장
+document.getElementById('review-body-input').addEventListener('input', saveReviewDraft);
+
 document.querySelectorAll('.star-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     reviewRating = Number(btn.dataset.val);
     updateStarDisplay();
+    saveReviewDraft();
   });
   btn.addEventListener('mouseover', () => {
     const hval = Number(btn.dataset.val);
@@ -3688,6 +3720,7 @@ document.querySelectorAll('.star-btn').forEach(btn => {
 });
 
 document.getElementById('btn-review-cancel').addEventListener('click', () => {
+  clearReviewDraft();
   document.getElementById('review-modal-overlay').classList.add('hidden');
 });
 
@@ -3712,6 +3745,7 @@ document.getElementById('btn-review-submit').addEventListener('click', async () 
       localStorage.setItem('shd_review__' + id, JSON.stringify(review));
     }
     reviewsData[id] = review;
+    clearReviewDraft();
     document.getElementById('review-modal-overlay').classList.add('hidden');
     renderReviews();
     showToast(editId ? '후기가 수정됐어요.' : '후기가 등록됐어요! ⭐');
@@ -3970,6 +4004,62 @@ window.deleteNotice  = deleteNotice;
 window.openEditNotice = openEditNotice;
 window.openLightbox  = openLightbox;
 window.removeImg     = removeImg;
+
+// ─────────────────────────────────────────────
+//  Mobile Back Button (뒤로가기 처리)
+// ─────────────────────────────────────────────
+history.pushState(null, '');
+
+function getOpenOverlay() {
+  if (!document.getElementById('img-lightbox').classList.contains('hidden')) return 'img-lightbox';
+  if (document.getElementById('entry-modal').classList.contains('active')) return 'entry-modal';
+  if (document.getElementById('settings-modal').classList.contains('active')) return 'settings-modal';
+  if (!document.getElementById('search-overlay').classList.contains('hidden')) return 'search-overlay';
+  if (!document.getElementById('review-modal-overlay').classList.contains('hidden')) return 'review-modal-overlay';
+  if (!document.getElementById('notice-modal-overlay').classList.contains('hidden')) return 'notice-modal-overlay';
+  return null;
+}
+
+function closeOverlayById(id) {
+  const el = document.getElementById(id);
+  if (id === 'entry-modal' || id === 'settings-modal') el.classList.remove('active');
+  else el.classList.add('hidden');
+}
+
+function activateTabDirect(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
+  if (tab === 'expense') renderExpenseTab();
+  if (tab === 'notice') { loadNotices(); if (boardSubTab === 'review') loadReviews(); }
+  if (tab === 'farming') renderFarmingTab();
+  if (tab === 'annual') renderAnnualTab();
+}
+
+window.addEventListener('popstate', () => {
+  history.pushState(null, ''); // 항상 다음 뒤로가기를 받을 상태 유지
+
+  const overlay = getOpenOverlay();
+  if (overlay) {
+    closeOverlayById(overlay);
+    return;
+  }
+
+  if (tabHistory.length > 1) {
+    tabHistory.pop();
+    activateTabDirect(tabHistory[tabHistory.length - 1]);
+    return;
+  }
+
+  // 더 이상 뒤로 갈 곳 없음 — 종료 확인
+  if (backExitTimer) {
+    clearTimeout(backExitTimer);
+    backExitTimer = null;
+    history.go(-(history.length));
+    return;
+  }
+  showToast('한 번 더 누르면 앱이 종료됩니다.');
+  backExitTimer = setTimeout(() => { backExitTimer = null; }, 2000);
+});
 
 // ─────────────────────────────────────────────
 //  Service Worker

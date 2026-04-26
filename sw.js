@@ -1,4 +1,4 @@
-const CACHE_NAME = 'second-house-diary-v5';
+const CACHE_NAME = 'second-house-diary-v6';
 const STATIC_ASSETS = [
   './',
   './index.html',
